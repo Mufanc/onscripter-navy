@@ -84,6 +84,9 @@ void ONScripter::drawGlyph( SDL_Surface *dst_surface, FontInfo *info, SDL_Color 
         if ((text[0] & 0xe0) == 0xa0 || (text[0] & 0xe0) == 0xc0) unicode = ((unsigned char*)text)[0] - 0xa0 + 0xff60;
         else unicode = text[0];
     }
+#ifdef __NAVY__
+    assert(0);
+#else
 
     int minx, maxx, miny, maxy, advanced;
 #if 0
@@ -177,6 +180,7 @@ void ONScripter::drawGlyph( SDL_Surface *dst_surface, FontInfo *info, SDL_Color 
         SDL_FreeSurface(tmp_surface_s);
     if (tmp_surface)
         SDL_FreeSurface(tmp_surface);
+#endif
 }
 
 void ONScripter::drawChar( char* text, FontInfo *info, bool flush_flag, bool lookback_flag, SDL_Surface *surface, AnimationInfo *cache_info, SDL_Rect *clip )

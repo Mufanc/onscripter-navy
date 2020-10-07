@@ -25,7 +25,7 @@
 #ifndef __ANIMATION_INFO_H__
 #define __ANIMATION_INFO_H__
 
-#include <SDL.h>
+#include "mySDL.h"
 #include <string.h>
 
 #ifndef _SDL_pixels_h

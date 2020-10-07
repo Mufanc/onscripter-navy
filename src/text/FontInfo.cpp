@@ -26,7 +26,7 @@
 #include "Utils.h"
 #include <stdio.h>
 #include <string.h>
-#include <SDL_ttf.h>
+#include "mySDL.h"
 
 
 static struct FontContainer{

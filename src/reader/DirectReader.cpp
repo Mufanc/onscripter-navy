@@ -27,6 +27,7 @@
 #include "coding2utf16.h"
 #include <bzlib.h>
 #include <dirent.h>
+#include <assert.h>
 
 #define IS_TWO_BYTE(x) \
         ( ((unsigned char)(x) > (unsigned char)0x80) && ((unsigned char)(x) !=(unsigned char) 0xff) )
@@ -378,6 +379,9 @@ size_t DirectReader::decodeNBZ( FILE *fp, size_t offset, unsigned char *buf )
     if (key_table_flag)
         utils::printError("may not decode NBZ with key_table enabled.\n");
     
+#ifdef __NAVY__
+    assert(0);
+#else
     unsigned int original_length, count;
     BZFILE *bfp;
     void *unused;
@@ -402,10 +406,14 @@ size_t DirectReader::decodeNBZ( FILE *fp, size_t offset, unsigned char *buf )
     BZ2_bzReadClose( &err, bfp );
 
     return original_length - count;
+#endif
 }
 
 size_t DirectReader::encodeNBZ( FILE *fp, size_t length, unsigned char *buf )
 {
+#ifdef __NAVY__
+    assert(0);
+#else
     unsigned int bytes_in, bytes_out;
     int err;
 
@@ -427,6 +435,7 @@ size_t DirectReader::encodeNBZ( FILE *fp, size_t length, unsigned char *buf )
     BZ2_bzWriteClose( &err, bfp, 0, &bytes_in, &bytes_out );
     
     return bytes_out;
+#endif
 }
 
 int DirectReader::getbit( FILE *fp, int n )

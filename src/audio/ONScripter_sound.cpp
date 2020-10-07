@@ -71,6 +71,7 @@ int ONScripter::playSound(const char *filename, int format, bool loop_flag, int 
         script_h.cBR->getFile( filename, buffer );
     }
     
+#ifndef __NAVY__
     if (format & SOUND_MUSIC){
 #if SDL_MIXER_MAJOR_VERSION >= 2
         music_info = Mix_LoadMUS_RW( SDL_RWFromMem( buffer, length ), 0);
@@ -122,6 +123,7 @@ int ONScripter::playSound(const char *filename, int format, bool loop_flag, int 
             }
         }
     }
+#endif
 
     delete[] buffer;
     
@@ -151,6 +153,7 @@ int ONScripter::playWave(Mix_Chunk *chunk, int format, bool loop_flag, int chann
 {
     if (!chunk) return -1;
 
+#ifndef __NAVY__
     Mix_Pause( channel );
     if ( wave_sample[channel] ) Mix_FreeChunk( wave_sample[channel] );
     wave_sample[channel] = chunk;
@@ -161,12 +164,14 @@ int ONScripter::playWave(Mix_Chunk *chunk, int format, bool loop_flag, int chann
 
     if ( !(format & SOUND_PRELOAD) )
         Mix_PlayChannel( channel, wave_sample[channel], loop_flag?-1:0 );
+#endif
 
     return 0;
 }
 
 int ONScripter::playMIDI(bool loop_flag)
 {
+#ifndef __NAVY__
     Mix_SetMusicCMD(midi_cmd);
     
     char midi_filename[256];
@@ -181,6 +186,7 @@ int ONScripter::playMIDI(bool loop_flag)
     Mix_VolumeMusic(music_volume);
     Mix_PlayMusic(midi_info, midi_looping);
     current_cd_track = -2; 
+#endif
     
     return 0;
 }
@@ -225,22 +231,28 @@ void ONScripter::stopBGM( bool continue_flag )
 
 
     if ( wave_sample[MIX_BGM_CHANNEL] ){
+#ifndef __NAVY__
         Mix_Pause( MIX_BGM_CHANNEL );
         Mix_FreeChunk( wave_sample[MIX_BGM_CHANNEL] );
+#endif
         wave_sample[MIX_BGM_CHANNEL] = NULL;
     }
 
     if ( music_info ){
         ext_music_play_once_flag = true;
+#ifndef __NAVY__
         Mix_HaltMusic();
         Mix_FreeMusic( music_info );
+#endif
         music_info = NULL;
     }
 
     if ( midi_info ){
         ext_music_play_once_flag = true;
+#ifndef __NAVY__
         Mix_HaltMusic();
         Mix_FreeMusic( midi_info );
+#endif
         midi_info = NULL;
     }
 
@@ -263,8 +275,10 @@ void ONScripter::stopAllDWAVE()
 {
     for (int ch=0; ch<ONS_MIX_CHANNELS ; ch++)
         if ( wave_sample[ch] ){
+#ifndef __NAVY__
             Mix_Pause( ch );
             Mix_FreeChunk( wave_sample[ch] );
+#endif
             wave_sample[ch] = NULL;
         }
 }

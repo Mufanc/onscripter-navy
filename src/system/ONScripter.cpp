@@ -52,7 +52,7 @@ void ONScripter::initSDL()
     /* ---------------------------------------- */
     /* Initialize SDL */
 
-    if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO ) < 0 ){
+    if ( SDL_Init(SDL_INITFLAGS) < 0 ){
         utils::printError("Couldn't initialize SDL: %s\n", SDL_GetError());
         exit(-1);
     }
@@ -109,11 +109,12 @@ void ONScripter::initSDL()
 
 void ONScripter::openAudio(int freq)
 {
+  audio_open_flag = false;
+#ifndef __NAVY__
     Mix_CloseAudio();
     if ( Mix_OpenAudio( (freq<0)?44100:freq, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, DEFAULT_AUDIOBUF ) < 0 ){
         utils::printError("Couldn't open audio device!\n"
             "  reason: [%s].\n", SDL_GetError());
-        audio_open_flag = false;
     }
     else{
         int freq;
@@ -133,6 +134,7 @@ void ONScripter::openAudio(int freq)
         Mix_AllocateChannels( ONS_MIX_CHANNELS+ONS_MIX_EXTRA_CHANNELS );
         Mix_ChannelFinished( waveCallback );
     }
+#endif
 }
 
 ONScripter::ONScripter()
@@ -248,7 +250,9 @@ void ONScripter::renderFontOutline()
 #if (SDL_TTF_MAJOR_VERSION>=2) && (SDL_TTF_MINOR_VERSION>=0) && (SDL_TTF_PATCHLEVEL>=10)
     render_font_outline = true;
 #else
+#ifndef __NAVY__
     utils::printError("--render-font-outline is not supported with SDL_ttf %d.%d.%d\n", SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_PATCHLEVEL);
+#endif
 #endif
 }
 
@@ -676,10 +680,13 @@ void ONScripter::mouseOverCheck( int x, int y )
 }
 
 void ONScripter::warpMouse(int x, int y) {
+#ifndef __NAVY__
     SDL_WarpMouse(x, y);
+#endif
 }
 
 void ONScripter::setFullScreen(bool fullscreen) {
+#ifndef __NAVY__
     if (fullscreen != fullscreen_mode) {
         if (!SDL_WM_ToggleFullScreen(screen_surface)) {
             screen_surface = SDL_SetVideoMode(screen_device_width, screen_device_height, screen_bpp,
@@ -688,6 +695,7 @@ void ONScripter::setFullScreen(bool fullscreen) {
             flushDirect(screen_rect, refreshMode());
         }
     }
+#endif
 }
 
 void ONScripter::executeLabel()
@@ -827,11 +835,13 @@ void ONScripter::deleteButtonLink()
 
 void ONScripter::refreshMouseOverButton()
 {
-    int mx, my;
+    int mx = 0, my = 0;
     current_over_button = -1;
     shift_over_button = -1;
     current_button_link = root_button_link.next;
+#ifndef __NAVY__
     SDL_GetMouseState( &mx, &my );
+#endif
     mx = mx * screen_width / screen_device_width;
     my = my * screen_width / screen_device_width;
     mouseOverCheck( mx, my );
@@ -1127,7 +1137,7 @@ void ONScripter::quit()
 {
     saveAll();
 
-
+#ifndef __NAVY__
     if ( midi_info ){
         Mix_HaltMusic();
         Mix_FreeMusic( midi_info );
@@ -1138,6 +1148,7 @@ void ONScripter::quit()
         Mix_FreeMusic( music_info );
         music_info = NULL;
     }
+#endif
 }
 
 void ONScripter::disableGetButtonFlag()

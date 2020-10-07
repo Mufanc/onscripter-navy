@@ -28,10 +28,7 @@
 #include "ScriptParser.h"
 #include "DirtyRect.h"
 #include "ButtonLink.h"
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <SDL_mixer.h>
+#include "mySDL.h"
 
 #define DEFAULT_VIDEO_SURFACE_FLAG (SDL_SWSURFACE)
 
@@ -525,8 +522,10 @@ public:
 private:
     bool waitEvent(int count);
     bool trapHandler();
+#ifndef __NAVY__
     bool mouseMoveEvent( SDL_MouseMotionEvent *event );
     bool mousePressEvent( SDL_MouseButtonEvent *event );
+#endif
     void variableEditMode( SDL_KeyboardEvent *event );
     void shiftCursorOnButton( int diff );
     bool keyDownEvent( SDL_KeyboardEvent *event );

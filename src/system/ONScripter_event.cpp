@@ -92,6 +92,7 @@ ONS_Key transKey(ONS_Key key)
 
 void ONScripter::flushEventSub( SDL_Event &event )
 {
+#ifndef __NAVY__
     if ( event.type == ONS_MUSIC_EVENT ){
         if ( music_play_loop_flag ||
              (cd_play_loop_flag && !cdaudio_flag ) ){
@@ -189,6 +190,7 @@ void ONScripter::flushEventSub( SDL_Event &event )
                                 wave_sample[MIX_LOOPBGM_CHANNEL1], -1);
         }
     }
+#endif
 }
 
 void ONScripter::flushEvent()
@@ -277,6 +279,7 @@ bool ONScripter::trapHandler()
 /* **************************************** *
  * Event handlers
  * **************************************** */
+#ifndef __NAVY__
 bool ONScripter::mouseMoveEvent( SDL_MouseMotionEvent *event )
 {
     current_button_state.x = event->x * screen_scale_ratio1;
@@ -394,6 +397,7 @@ bool ONScripter::mousePressEvent( SDL_MouseButtonEvent *event )
 
     return false;
 }
+#endif
 
 
 void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
@@ -426,30 +430,18 @@ void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
         variable_edit_mode = EDIT_VARIABLE_INDEX_MODE;
         variable_edit_num = 0;
         break;
-        enum {
-            ONS_KP_0 = SDLK_KP0,
-            ONS_KP_1 = SDLK_KP1,
-            ONS_KP_2 = SDLK_KP2,
-            ONS_KP_3 = SDLK_KP3,
-            ONS_KP_4 = SDLK_KP4,
-            ONS_KP_5 = SDLK_KP5,
-            ONS_KP_6 = SDLK_KP6,
-            ONS_KP_7 = SDLK_KP7,
-            ONS_KP_8 = SDLK_KP8,
-            ONS_KP_9 = SDLK_KP9
-        };
-      case SDLK_9: case ONS_KP_9: variable_edit_num = variable_edit_num * 10 + 9; break;
-      case SDLK_8: case ONS_KP_8: variable_edit_num = variable_edit_num * 10 + 8; break;
-      case SDLK_7: case ONS_KP_7: variable_edit_num = variable_edit_num * 10 + 7; break;
-      case SDLK_6: case ONS_KP_6: variable_edit_num = variable_edit_num * 10 + 6; break;
-      case SDLK_5: case ONS_KP_5: variable_edit_num = variable_edit_num * 10 + 5; break;
-      case SDLK_4: case ONS_KP_4: variable_edit_num = variable_edit_num * 10 + 4; break;
-      case SDLK_3: case ONS_KP_3: variable_edit_num = variable_edit_num * 10 + 3; break;
-      case SDLK_2: case ONS_KP_2: variable_edit_num = variable_edit_num * 10 + 2; break;
-      case SDLK_1: case ONS_KP_1: variable_edit_num = variable_edit_num * 10 + 1; break;
-      case SDLK_0: case ONS_KP_0: variable_edit_num = variable_edit_num * 10 + 0; break;
+      case SDLK_9: variable_edit_num = variable_edit_num * 10 + 9; break;
+      case SDLK_8: variable_edit_num = variable_edit_num * 10 + 8; break;
+      case SDLK_7: variable_edit_num = variable_edit_num * 10 + 7; break;
+      case SDLK_6: variable_edit_num = variable_edit_num * 10 + 6; break;
+      case SDLK_5: variable_edit_num = variable_edit_num * 10 + 5; break;
+      case SDLK_4: variable_edit_num = variable_edit_num * 10 + 4; break;
+      case SDLK_3: variable_edit_num = variable_edit_num * 10 + 3; break;
+      case SDLK_2: variable_edit_num = variable_edit_num * 10 + 2; break;
+      case SDLK_1: variable_edit_num = variable_edit_num * 10 + 1; break;
+      case SDLK_0: variable_edit_num = variable_edit_num * 10 + 0; break;
 
-      case SDLK_MINUS: case SDLK_KP_MINUS:
+      case SDLK_MINUS:
         if ( variable_edit_mode == EDIT_VARIABLE_NUM_MODE && variable_edit_num == 0 ) variable_edit_sign = -1;
         break;
 
@@ -458,7 +450,7 @@ void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
         else if ( variable_edit_sign == -1 ) variable_edit_sign = 1;
         break;
 
-      case SDLK_RETURN: case SDLK_KP_ENTER:
+      case SDLK_RETURN:
         switch( variable_edit_mode ){
 
           case EDIT_VARIABLE_INDEX_MODE:
@@ -477,6 +469,7 @@ void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
             script_h.setNumVariable( variable_edit_index, variable_edit_sign * variable_edit_num );
             break;
 
+#ifndef __NAVY__
           case EDIT_MP3_VOLUME_MODE:
             music_volume = variable_edit_num;
             Mix_VolumeMusic( music_volume * MIX_MAX_VOLUME / 100 );
@@ -493,6 +486,7 @@ void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
           case EDIT_VOICE_VOLUME_MODE:
             voice_volume = variable_edit_num;
             if ( wave_sample[0] ) Mix_Volume( 0, se_volume * MIX_MAX_VOLUME / 100 );
+#endif
 
           default:
             break;
@@ -582,13 +576,10 @@ void ONScripter::shiftCursorOnButton( int diff )
 
 bool ONScripter::keyDownEvent( SDL_KeyboardEvent *event )
 {
+#ifndef __NAVY__
     if (event->keysym.sym == SDLK_ESCAPE){
         current_button_state.event_type = SDL_MOUSEBUTTONDOWN;
         current_button_state.event_button = SDL_BUTTON_RIGHT;
-    }
-    else if (event->keysym.sym == SDLK_KP_ENTER){
-        current_button_state.event_type = SDL_MOUSEBUTTONDOWN;
-        current_button_state.event_button = SDL_BUTTON_LEFT;
     }
     else if (event->keysym.sym == SDLK_LEFT){
         current_button_state.event_type = SDL_MOUSEBUTTONDOWN;
@@ -600,6 +591,7 @@ bool ONScripter::keyDownEvent( SDL_KeyboardEvent *event )
 //        current_button_state.event_button = SDL_MOUSEWHEEL;
         current_button_state.y = -1;
     }
+#endif
 
     switch ( event->keysym.sym ) {
       case SDLK_RCTRL:
@@ -632,13 +624,10 @@ bool ONScripter::keyDownEvent( SDL_KeyboardEvent *event )
 
 void ONScripter::keyUpEvent( SDL_KeyboardEvent *event )
 {
+#ifndef __NAVY__
     if (event->keysym.sym == SDLK_ESCAPE){
         current_button_state.event_type = SDL_MOUSEBUTTONUP;
         current_button_state.event_button = SDL_BUTTON_RIGHT;
-    }
-    else if (event->keysym.sym == SDLK_KP_ENTER){
-        current_button_state.event_type = SDL_MOUSEBUTTONUP;
-        current_button_state.event_button = SDL_BUTTON_LEFT;
     }
     else if (event->keysym.sym == SDLK_LEFT){
         current_button_state.event_type = SDL_MOUSEBUTTONUP;
@@ -650,6 +639,7 @@ void ONScripter::keyUpEvent( SDL_KeyboardEvent *event )
 //        current_button_state.event_button = SDL_MOUSEWHEEL;
         current_button_state.y = -1;
     }
+#endif
 
     switch ( event->keysym.sym ) {
       case SDLK_RCTRL:
@@ -702,7 +692,6 @@ bool ONScripter::keyPressEvent( SDL_KeyboardEvent *event )
 
     if ( (trap_mode & TRAP_LEFT_CLICK) && 
          (event->keysym.sym == SDLK_RETURN ||
-          event->keysym.sym == SDLK_KP_ENTER ||
           event->keysym.sym == SDLK_SPACE ) ){
         if (trapHandler()) return true;
     }
@@ -713,11 +702,9 @@ bool ONScripter::keyPressEvent( SDL_KeyboardEvent *event )
     
     if ( event_mode & WAIT_BUTTON_MODE &&
          (((event->type == SDL_KEYUP || btndown_flag) &&
-           ((!getenter_flag && event->keysym.sym == SDLK_RETURN) ||
-            (!getenter_flag && event->keysym.sym == SDLK_KP_ENTER))) ||
+           (!getenter_flag && event->keysym.sym == SDLK_RETURN)) ||
           ((spclclk_flag || !useescspc_flag) && event->keysym.sym == SDLK_SPACE)) ){
         if ( event->keysym.sym == SDLK_RETURN ||
-             event->keysym.sym == SDLK_KP_ENTER ||
              (spclclk_flag && event->keysym.sym == SDLK_SPACE) ){
             current_button_state.button = current_over_button;
             if (current_over_button == -1){
@@ -817,8 +804,7 @@ bool ONScripter::keyPressEvent( SDL_KeyboardEvent *event )
             current_button_state.button  = -13;
             sprintf(current_button_state.str, "PAGEDOWN");
         }
-        else if ( (getenter_flag && event->keysym.sym == SDLK_RETURN) ||
-                  (getenter_flag && event->keysym.sym == SDLK_KP_ENTER) ){
+        else if ( getenter_flag && event->keysym.sym == SDLK_RETURN ){
             current_button_state.button  = -19;
         }
         else if ( gettab_flag && event->keysym.sym == SDLK_TAB ){
@@ -883,7 +869,6 @@ bool ONScripter::keyPressEvent( SDL_KeyboardEvent *event )
     if ( event_mode & WAIT_INPUT_MODE &&
          ( autoclick_time == 0 || (event_mode & WAIT_BUTTON_MODE)) ){
         if (event->keysym.sym == SDLK_RETURN || 
-            event->keysym.sym == SDLK_KP_ENTER ||
             event->keysym.sym == SDLK_SPACE ){
             if (!(event_mode & WAIT_TEXT_MODE))
                 skip_mode |= SKIP_TO_EOL;
@@ -1002,6 +987,7 @@ void ONScripter::runEventLoop()
 
     while ( SDL_WaitEvent(&event) ) {
         bool ret = false;
+#ifndef __NAVY__
         // ignore continous SDL_MOUSEMOTION
 #if SDL_VERSION_ATLEAST(1, 3, 0)
         while (event.type == SDL_MOUSEMOTION || event.type == SDL_FINGERMOTION)
@@ -1020,8 +1006,10 @@ void ONScripter::runEventLoop()
 #endif
             event = tmp_event;
         }
+#endif
 
         switch (event.type) {
+#ifndef __NAVY__
           case SDL_MOUSEMOTION:
             if (mouseMoveEvent( &event.motion )) return;
             if (btndown_flag){
@@ -1048,6 +1036,23 @@ void ONScripter::runEventLoop()
             ret = mousePressEvent( &event.button );
             if (ret) return;
             break;
+
+          case SDL_ACTIVEEVENT:
+            if ( !event.active.gain ){
+                // the mouse cursor leaves the window
+                SDL_MouseMotionEvent mevent;
+                mevent.x = screen_device_width;
+                mevent.y = screen_device_height;
+                mouseMoveEvent( &mevent );
+                break;
+            }
+          case SDL_VIDEOEXPOSE:
+            SDL_UpdateRect( screen_surface, 0, 0, screen_width, screen_height );
+            break;
+          case SDL_QUIT:
+            endCommand();
+            break;
+#endif
             
           case SDL_KEYDOWN:
             event.key.keysym.sym = transKey(event.key.keysym.sym);
@@ -1109,21 +1114,6 @@ void ONScripter::runEventLoop()
             }
 
             return;
-          case SDL_ACTIVEEVENT:
-            if ( !event.active.gain ){
-                // the mouse cursor leaves the window
-                SDL_MouseMotionEvent mevent;
-                mevent.x = screen_device_width;
-                mevent.y = screen_device_height;
-                mouseMoveEvent( &mevent );
-                break;
-            }
-          case SDL_VIDEOEXPOSE:
-            SDL_UpdateRect( screen_surface, 0, 0, screen_width, screen_height );
-            break;
-          case SDL_QUIT:
-            endCommand();
-            break;
             
           default:
             break;
