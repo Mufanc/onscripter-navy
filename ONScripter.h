@@ -35,7 +35,9 @@
 #if defined(USE_SMPEG)
 #include <smpeg.h>
 #endif    
+#ifdef USE_LUA
 #include "direct_draw.h"
+#endif
 
 #define DEFAULT_VIDEO_SURFACE_FLAG (SDL_SWSURFACE)
 
@@ -62,8 +64,10 @@
 class ONScripter : public ScriptParser
 {
 public:
+#ifdef USE_LUA
     friend class DirectDraw;
     DirectDraw directDraw;
+#endif
     typedef AnimationInfo::ONSBuf ONSBuf;
     
     struct ButtonState{
@@ -606,9 +610,11 @@ private:
     SDL_Surface *screenshot_surface; // Screenshot
     int screenshot_w, screenshot_h;
     SDL_Surface *image_surface; // Reference for loadImage()
+#ifdef USE_SDL_RENDERER
     int max_texture_width, max_texture_height;
     SDL_Texture *blt_texture;
     SDL_Rect blt_texture_src_rect;
+#endif
 
     unsigned char *tmp_image_buf;
     unsigned long tmp_image_buf_length;

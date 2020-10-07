@@ -17,9 +17,9 @@ TARGET = onscripter$(EXESUFFIX) \
 EXT_OBJS = 
 
 # mandatory: SDL, SDL_ttf, SDL_image, SDL_mixer, bzip2
-DEFS = -DLINUX -DUSE_SDL_RENDERER -DNDEBUG
-INCS = `sdl2-config --cflags`
-LIBS = `sdl2-config --libs` -lSDL2_ttf -lSDL2_image -lSDL2_mixer -lbz2 -lm
+DEFS = -DLINUX
+INCS = `sdl-config --cflags`
+LIBS = `sdl-config --libs` -lSDL_ttf -lSDL_image -lSDL_mixer -lbz2 -lm
 EXT_FLAGS = 
 
 # recommended: smpeg
@@ -27,40 +27,40 @@ EXT_FLAGS =
 #INCS += `smpeg-config --cflags`
 #LIBS += `smpeg-config --libs`
 
-# recommended: fontconfig (to get default font)
-DEFS += -DUSE_FONTCONFIG
-LIBS += -lfontconfig
-
-# recommended: OggVorbis 
-DEFS += -DUSE_OGG_VORBIS
-LIBS += -logg -lvorbis -lvorbisfile
-
-# optional: Integer OggVorbis
-#DEFS += -DUSE_OGG_VORBIS -DINTEGER_OGG_VORBIS
-#LIBS += -lvorbisidec
-
-# optional: support CD audio
-#DEFS += -DUSE_CDROM
-
-# optional: avifile
-#DEFS += -DUSE_AVIFILE
-#INCS += `avifile-config --cflags`
-#LIBS += `avifile-config --libs`
-#TARGET += simple_aviplay$(EXESUFFIX)
-#EXT_OBJS += AVIWrapper$(OBJSUFFIX)
-
-# optional: lua
-DEFS += -DUSE_LUA
-INCS += -I/usr/include/lua
-LIBS += -llua
-EXT_OBJS += LUAHandler$(OBJSUFFIX)
-
-# optional: SIMD optimizing
-DEFS += -DUSE_SIMD -DUSE_SIMD_X86_SSE2
-
-# optional: multicore rendering
-DEFS += -DUSE_OMP_PARALLEL
-EXT_FLAGS += -fopenmp
+## recommended: fontconfig (to get default font)
+#DEFS += -DUSE_FONTCONFIG
+#LIBS += -lfontconfig
+#
+## recommended: OggVorbis 
+#DEFS += -DUSE_OGG_VORBIS
+#LIBS += -logg -lvorbis -lvorbisfile
+#
+## optional: Integer OggVorbis
+##DEFS += -DUSE_OGG_VORBIS -DINTEGER_OGG_VORBIS
+##LIBS += -lvorbisidec
+#
+## optional: support CD audio
+##DEFS += -DUSE_CDROM
+#
+## optional: avifile
+##DEFS += -DUSE_AVIFILE
+##INCS += `avifile-config --cflags`
+##LIBS += `avifile-config --libs`
+##TARGET += simple_aviplay$(EXESUFFIX)
+##EXT_OBJS += AVIWrapper$(OBJSUFFIX)
+#
+## optional: lua
+#DEFS += -DUSE_LUA
+#INCS += -I/usr/include/lua
+#LIBS += -llua
+#EXT_OBJS += LUAHandler$(OBJSUFFIX)
+#
+## optional: SIMD optimizing
+#DEFS += -DUSE_SIMD -DUSE_SIMD_X86_SSE2
+#
+## optional: multicore rendering
+#DEFS += -DUSE_OMP_PARALLEL
+#EXT_FLAGS += -fopenmp
 
 # optional: enable builtin effects
 DEFS += -DUSE_BUILTIN_EFFECTS -DUSE_BUILTIN_LAYER_EFFECTS

@@ -3499,8 +3499,10 @@ int ONScripter::btndefCommand()
         const char *buf = script_h.readStr();
 
         btndef_info.remove();
+#ifdef USE_SDL_RENDERER
         if (blt_texture != NULL) SDL_DestroyTexture(blt_texture);
         blt_texture = NULL;
+#endif
 
         if ( buf[0] != '\0' ){
             btndef_info.setImageName( buf );
@@ -3603,6 +3605,7 @@ int ONScripter::brCommand()
     return RET_CONTINUE;
 }
 
+#ifdef USE_SDL_RENDERER
 static SDL_Texture* createMaximumTexture(SDL_Renderer *renderer, SDL_Rect &blt_rect, const SDL_Rect &src_rect, SDL_Surface *blt_surface,
     Uint32 texture_format, int max_texture_width, int max_texture_height) {
     if (src_rect.w > max_texture_width || src_rect.h > max_texture_height) utils::printInfo("Texture too large");
@@ -3616,6 +3619,7 @@ static SDL_Texture* createMaximumTexture(SDL_Renderer *renderer, SDL_Rect &blt_r
     SDL_FreeSurface(surface);
     return blt_texture;
 }
+#endif
 
 int ONScripter::bltCommand()
 {
@@ -3634,6 +3638,7 @@ int ONScripter::bltCommand()
     if (btndef_info.image_surface == NULL) return RET_CONTINUE;
     if (dw == 0 || dh == 0 || sw == 0 || sh == 0) return RET_CONTINUE;
     
+#ifdef USE_SDL_RENDERER
     if (sx >= 0 && sy >= 0 && sw > 0 && sh > 0) {
         if (sx + sw > btndef_info.image_surface->w) sw = btndef_info.image_surface->w - sx;
         if (sy + sh > btndef_info.image_surface->h) sh = btndef_info.image_surface->h - sy;
@@ -3671,6 +3676,67 @@ int ONScripter::bltCommand()
     } else {
       utils::printError("blt:Wrong arguments.");
     }
+#else
+    if ( sw == dw && sw > 0 && sh == dh && sh > 0 ){
+      SDL_Rect src_rect = {sx,sy,sw,sh};
+      SDL_Rect dst_rect = {dx,dy,dw,dh};
+      SDL_BlitSurface( btndef_info.image_surface, &src_rect, screen_surface, &dst_rect );
+      SDL_UpdateRect( screen_surface, dst_rect.x, dst_rect.y, dst_rect.w, dst_rect.h );
+      dirty_rect.clear();
+    } else {
+        SDL_LockSurface(accumulation_surface);
+        SDL_LockSurface(btndef_info.image_surface);
+        ONSBuf *dst_buf = (ONSBuf*)accumulation_surface->pixels;
+        ONSBuf *src_buf = (ONSBuf*)btndef_info.image_surface->pixels;
+#if defined(BPP16)
+        int dst_width = accumulation_surface->pitch / 2;
+        int src_width = btndef_info.image_surface->pitch / 2;
+#else
+        int dst_width = accumulation_surface->pitch / 4;
+        int src_width = btndef_info.image_surface->pitch / 4;
+#endif
+
+        int start_y = dy, end_y = dy+dh;
+        if (dh < 0){
+            start_y = dy+dh;
+            end_y = dy;
+        }
+        if (start_y < 0) start_y = 0;
+        if (end_y > screen_height) end_y = screen_height;
+
+        int start_x = dx, end_x = dx+dw;
+        if (dw < 0){
+            start_x = dx+dw;
+            end_x = dx;
+        }
+        if (start_x < 0) start_x = 0;
+        if (end_x >= screen_width) end_x = screen_width;
+
+        dst_buf += start_y*dst_width;
+        for (int i=start_y ; i<end_y ; i++){
+            int y = sy+sh*(i-dy)/dh;
+            for (int j=start_x ; j<end_x ; j++){
+
+                int x = sx+sw*(j-dx)/dw;
+                if (x<0 || x>=btndef_info.image_surface->w ||
+                    y<0 || y>=btndef_info.image_surface->h)
+                    *(dst_buf+j) = 0;
+                else
+                    *(dst_buf+j) = *(src_buf+y*src_width+x);
+            }
+            dst_buf += dst_width;
+        }
+        SDL_UnlockSurface(btndef_info.image_surface);
+        SDL_UnlockSurface(accumulation_surface);
+
+        SDL_Rect dst_rect;
+        dst_rect.x = start_x;
+        dst_rect.y = start_y;
+        dst_rect.w = end_x-start_x;
+        dst_rect.h = end_y-start_y;
+        flushDirect( dst_rect, REFRESH_NONE_MODE );
+    }
+#endif
 
     return RET_CONTINUE;
 }

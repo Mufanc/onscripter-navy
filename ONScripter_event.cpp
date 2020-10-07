@@ -627,8 +627,19 @@ void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
         variable_edit_num = 0;
         break;
 #if !SDL_VERSION_ATLEAST(2,0,0)
-#define SDLK_KP_ SDLK_KP
-#endif
+        enum {
+            ONS_KP_0 = SDLK_KP0,
+            ONS_KP_1 = SDLK_KP1,
+            ONS_KP_2 = SDLK_KP2,
+            ONS_KP_3 = SDLK_KP3,
+            ONS_KP_4 = SDLK_KP4,
+            ONS_KP_5 = SDLK_KP5,
+            ONS_KP_6 = SDLK_KP6,
+            ONS_KP_7 = SDLK_KP7,
+            ONS_KP_8 = SDLK_KP8,
+            ONS_KP_9 = SDLK_KP9
+        };
+#else
         enum {
             ONS_KP_0 = SDLK_KP_0,
             ONS_KP_1 = SDLK_KP_1,
@@ -641,8 +652,6 @@ void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
             ONS_KP_8 = SDLK_KP_8,
             ONS_KP_9 = SDLK_KP_9
         };
-#if !SDL_VERSION_ATLEAST(2,0,0)
-#undef SDLK_KP_
 #endif
       case SDLK_9: case ONS_KP_9: variable_edit_num = variable_edit_num * 10 + 9; break;
       case SDLK_8: case ONS_KP_8: variable_edit_num = variable_edit_num * 10 + 8; break;
@@ -798,12 +807,12 @@ bool ONScripter::keyDownEvent( SDL_KeyboardEvent *event )
     }
     else if (event->keysym.sym == SDLK_LEFT){
         current_button_state.event_type = SDL_MOUSEBUTTONDOWN;
-        current_button_state.event_button = SDL_MOUSEWHEEL;
+//        current_button_state.event_button = SDL_MOUSEWHEEL;
         current_button_state.y = 1;
     }
     else if (event->keysym.sym == SDLK_RIGHT){
         current_button_state.event_type = SDL_MOUSEBUTTONDOWN;
-        current_button_state.event_button = SDL_MOUSEWHEEL;
+//        current_button_state.event_button = SDL_MOUSEWHEEL;
         current_button_state.y = -1;
     }
 
@@ -848,12 +857,12 @@ void ONScripter::keyUpEvent( SDL_KeyboardEvent *event )
     }
     else if (event->keysym.sym == SDLK_LEFT){
         current_button_state.event_type = SDL_MOUSEBUTTONUP;
-        current_button_state.event_button = SDL_MOUSEWHEEL;
+//        current_button_state.event_button = SDL_MOUSEWHEEL;
         current_button_state.y = 1;
     }
     else if (event->keysym.sym == SDLK_RIGHT){
         current_button_state.event_type = SDL_MOUSEBUTTONUP;
-        current_button_state.event_button = SDL_MOUSEWHEEL;
+//        current_button_state.event_button = SDL_MOUSEWHEEL;
         current_button_state.y = -1;
     }
 
@@ -1253,7 +1262,12 @@ void ONScripter::runEventLoop()
 #endif    
         bool ret = false;
         // ignore continous SDL_MOUSEMOTION
-        while (event.type == SDL_MOUSEMOTION || event.type == SDL_FINGERMOTION) {
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+        while (event.type == SDL_MOUSEMOTION || event.type == SDL_FINGERMOTION)
+#else
+        while (event.type == SDL_MOUSEMOTION)
+#endif
+        {
 #if SDL_VERSION_ATLEAST(1, 3, 0)
             if ( SDL_PeepEvents( &tmp_event, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT ) == 0 ) break;
             if (tmp_event.type != SDL_MOUSEMOTION && tmp_event.type != SDL_FINGERMOTION) break;
@@ -1395,7 +1409,7 @@ void ONScripter::runEventLoop()
             break;
 #endif //SDL_VERSION_ATLEAST(2,0,0)
 #endif
-#if !defined(ANDROID) && !defined(IOS) && !defined(WINRT) && SDL_VERSION_ATLEAST(2,0,0)
+#if !defined(ANDROID) && !defined(IOS) && !defined(WINRT)
           case SDL_MOUSEMOTION:
             if (mouseMoveEvent( &event.motion )) return;
             if (btndown_flag){
@@ -1422,10 +1436,12 @@ void ONScripter::runEventLoop()
             ret = mousePressEvent( &event.button );
             if (ret) return;
             break;
+#if SDL_VERSION_ATLEAST(2,0,0)
           case SDL_MOUSEWHEEL:
             ret = mouseWheelEvent(&event.wheel);
             if (ret) return;
             break;
+#endif
 #endif
           case SDL_JOYBUTTONDOWN:
             event.key.type = SDL_KEYDOWN;

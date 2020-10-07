@@ -54,7 +54,9 @@ static void SDL_Quit_Wrapper()
 void ONScripter::calcRenderRect() {
     int vieww, viewh;
     int renderw, renderh;
+#ifdef USE_SDL_RENDERER
     SDL_GetRendererOutputSize(renderer, &renderw, &renderh);
+#endif
     int swdh = screen_width * renderh;
     int dwsh = renderw * screen_height;
     if (swdh == dwsh) {
@@ -172,7 +174,6 @@ void ONScripter::initSDL()
 
     screen_device_width  = screen_width;
     screen_device_height = screen_height;
-#if defined(USE_SDL_RENDERER)
     // use hardware scaling
     screen_ratio1 = 1;
     screen_ratio2 = 1;
@@ -181,6 +182,7 @@ void ONScripter::initSDL()
     screen_scale_ratio1 = (float)screen_width / screen_device_width;
     screen_scale_ratio2 = (float)screen_height / screen_device_height;
 
+#if defined(USE_SDL_RENDERER)
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
@@ -483,13 +485,13 @@ int ONScripter::init()
     effect_src_surface   = AnimationInfo::allocSurface( screen_width, screen_height, texture_format );
     effect_dst_surface   = AnimationInfo::allocSurface( screen_width, screen_height, texture_format );
     effect_tmp_surface = AnimationInfo::allocSurface(screen_width, screen_height, texture_format);
-    blt_texture = NULL;
 
     screenshot_surface = NULL;
     screenshot_w = screen_width;
     screenshot_h = screen_height;
 
 #ifdef USE_SDL_RENDERER
+    blt_texture = NULL;
 #if SDL_VERSION_ATLEAST(2,0,0)
     texture = SDL_CreateTexture(renderer, texture_format, SDL_TEXTUREACCESS_STREAMING, accumulation_surface->w, accumulation_surface->h);
 #else
@@ -612,7 +614,8 @@ int ONScripter::init()
             utils::printError("can't open font file: %s\n", font_file);
             return -1;
         }
-        int size = fontfp->size(fontfp);
+        int size = fontfp->seek(fontfp, RW_SEEK_END, 0);
+        fontfp->seek(fontfp, RW_SEEK_SET, 0);
         font_cache = malloc(size);
         fontfp->read(fontfp, font_cache, 1, size);
         fontfp->close(fontfp);
@@ -689,8 +692,10 @@ void ONScripter::reset()
     current_cd_track = -1;
     
     resetSub();
+#ifdef USE_SDL_RENDERER
     if (blt_texture != NULL) SDL_DestroyTexture(blt_texture);
     blt_texture = NULL;
+#endif
 }
 
 void ONScripter::resetSub()
@@ -1141,10 +1146,12 @@ void ONScripter::refreshMouseOverButton()
     shift_over_button = -1;
     current_button_link = root_button_link.next;
     SDL_GetMouseState( &mx, &my );
+#if SDL_VERSION_ATLEAST(2,0,0)
     if (!(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS)) {
         mx = screen_device_width;
         my = screen_device_height;
     }
+#endif
     mx = mx * screen_width / screen_device_width;
     my = my * screen_width / screen_device_width;
     mouseOverCheck( mx, my );

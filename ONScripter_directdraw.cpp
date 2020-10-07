@@ -19,6 +19,7 @@
 *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#ifdef USE_LUA
 #include "ONScripter.h"
 #include <string.h>
 #include <assert.h>
@@ -104,3 +105,4 @@ void DirectDraw::clear()
     SDL_SetRenderDrawColor(ons.renderer, 0, 0, 0 , SDL_ALPHA_OPAQUE);
     SDL_RenderClear(ons.renderer);
 }
+#endif
