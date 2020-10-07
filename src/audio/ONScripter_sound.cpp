@@ -24,12 +24,7 @@
 
 #include "ONScripter.h"
 #include "Utils.h"
-#include <new>
 #include <signal.h>
-
-
-
-
 
 extern bool ext_music_play_once_flag;
 
@@ -63,7 +58,7 @@ int ONScripter::playSound(const char *filename, int format, bool loop_flag, int 
         buffer = music_buffer;
     }
     else{
-        buffer = new(std::nothrow) unsigned char[length];
+        buffer = new unsigned char[length];
         if (buffer == NULL){
             utils::printError("failed to load [%s] because file size [%lu] is too large.\n", filename, length);
             return SOUND_NONE;

@@ -119,6 +119,7 @@ FILE *DirectReader::fopen(const char *path, const char *mode)
     FILE *fp = ::fopen( file_full_path, mode );
     if (fp) return fp;
 
+#ifndef __NAVY__
     char *cur_p = NULL;
     DIR *dp = NULL;
     len = strlen(archive_path);
@@ -161,6 +162,7 @@ FILE *DirectReader::fopen(const char *path, const char *mode)
     }
 
     fp = ::fopen( file_full_path, mode );
+#endif
 
     return fp;
 }

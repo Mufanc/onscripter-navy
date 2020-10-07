@@ -2649,6 +2649,7 @@ int ONScripter::exec_dllCommand()
     }
     dll_name[c] = '\0';
 
+#ifndef __NAVY__
     if (strcmp(dll_name, "fileutil.dll") == 0){
         if (strncmp(buf+c, "/mkdir", 6) == 0){
             c += 7;
@@ -2659,6 +2660,7 @@ int ONScripter::exec_dllCommand()
         }
         return RET_CONTINUE;
     }
+#endif
 
     FILE *fp;
     if ( ( fp = fopen( dll_file, "r" ) ) == NULL ){
