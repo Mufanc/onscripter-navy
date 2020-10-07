@@ -28,30 +28,16 @@
 #include <string.h>
 #include <SDL_ttf.h>
 
-#if defined(PSP)
-#include <string.h>
-#include <stdlib.h>
-extern int psp_power_resume_number;
-#endif
 
 static struct FontContainer{
     FontContainer *next;
     int size;
     TTF_Font *font[2];
-#if defined(PSP)
-    SDL_RWops *rw_ops;
-    int power_resume_number;
-    char name[256];
-#endif
 
     FontContainer(){
         size = 0;
         next = NULL;
         font[0] = font[1] = NULL;
-#if defined(PSP)
-        rw_ops = NULL;
-        power_resume_number = 0;
-#endif
     };
 } root_font_container;
 
@@ -110,16 +96,6 @@ void *FontInfo::openFont( char *font_file, int ratio1, int ratio2 )
         }
         if ( fp == NULL ) return NULL;
         fp->close(fp);
-#if defined(PSP)
-        fc->next->rw_ops = SDL_RWFromFile(font_file, "r");
-        fc->next->font[0] = TTF_OpenFontRW( fc->next->rw_ops, SDL_TRUE, font_size * ratio1 / ratio2 );
-#if (SDL_TTF_MAJOR_VERSION>=2) && (SDL_TTF_MINOR_VERSION>=0) && (SDL_TTF_PATCHLEVEL>=10)
-        fc->next->font[1] = TTF_OpenFontRW( fc->next->rw_ops, SDL_TRUE, font_size * ratio1 / ratio2 );
-        TTF_SetFontOutline(fc->next->font[1], 1);
-#endif
-        fc->next->power_resume_number = psp_power_resume_number;
-        strcpy(fc->next->name, font_file);
-#else
         if (useFile) fc->next->font[0] = TTF_OpenFont(font_file, font_size * ratio1 / ratio2);
         else fc->next->font[0] = TTF_OpenFontRW(SDL_RWFromConstMem(font_cache, font_cache_size), 1, font_size * ratio1 / ratio2);
 #if (SDL_TTF_MAJOR_VERSION>=2) && (SDL_TTF_MINOR_VERSION>=0) && (SDL_TTF_PATCHLEVEL>=10)
@@ -130,15 +106,7 @@ void *FontInfo::openFont( char *font_file, int ratio1, int ratio2 )
         }
         TTF_SetFontOutline(fc->next->font[1], 1);
 #endif
-#endif
     }
-#if defined(PSP)
-    else if (fc->next->power_resume_number != psp_power_resume_number){
-        FILE *fp = fopen(fc->next->name, "r");
-        fc->next->rw_ops->hidden.stdio.fp = fp;
-        fc->next->power_resume_number = psp_power_resume_number;
-    }
-#endif
 
     ttf_font[0] = (void*)fc->next->font[0];
     ttf_font[1] = (void*)fc->next->font[1];

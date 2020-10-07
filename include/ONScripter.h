@@ -32,12 +32,6 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
-#if defined(USE_SMPEG)
-#include <smpeg.h>
-#endif    
-#ifdef USE_LUA
-#include "direct_draw.h"
-#endif
 
 #define DEFAULT_VIDEO_SURFACE_FLAG (SDL_SWSURFACE)
 
@@ -64,10 +58,6 @@
 class ONScripter : public ScriptParser
 {
 public:
-#ifdef USE_LUA
-    friend class DirectDraw;
-    DirectDraw directDraw;
-#endif
     typedef AnimationInfo::ONSBuf ONSBuf;
     
     struct ButtonState{
@@ -422,9 +412,6 @@ private:
     void resetSentenceFont();
     void flush( int refresh_mode, SDL_Rect *rect=NULL, bool clear_dirty_flag=true, bool direct_flag=false );
     void flushDirect( SDL_Rect &rect, int refresh_mode );
-    #ifdef USE_SMPEG
-    void flushDirectYUV(SDL_Overlay *overlay);
-    #endif
     void mouseOverCheck( int x, int y );
     void warpMouse(int x, int y);
     void setFullScreen(bool fullscreen);
@@ -564,9 +551,6 @@ private:
     void keyUpEvent( SDL_KeyboardEvent *event );
     bool keyPressEvent( SDL_KeyboardEvent *event );
     void timerEvent(bool init_flag);
-#if (defined(IOS) || defined(ANDROID) || defined(WINRT)) && SDL_VERSION_ATLEAST(2, 0, 0)
-    bool convTouchKey(SDL_TouchFingerEvent &finger);
-#endif
     void runEventLoop();
 
     // ----------------------------------------
@@ -597,11 +581,6 @@ private:
     };
     int  refresh_shadow_text_mode;
 
-#ifdef USE_SDL_RENDERER
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-    SDL_Texture *texture;
-#endif
     void setCaption(const char *title, const char *iconstr = NULL);
     void setScreenDirty(bool screen_dirty);
     // format = SDL_PIXELFORMAT_ABGR8888 for OpenGL ES 1.x, OpenGL ES 2.x (Android, iOS)
@@ -617,11 +596,6 @@ private:
     SDL_Surface *screenshot_surface; // Screenshot
     int screenshot_w, screenshot_h;
     SDL_Surface *image_surface; // Reference for loadImage()
-#ifdef USE_SDL_RENDERER
-    int max_texture_width, max_texture_height;
-    SDL_Texture *blt_texture;
-    SDL_Rect blt_texture_src_rect;
-#endif
 
     unsigned char *tmp_image_buf;
     unsigned long tmp_image_buf_length;
@@ -700,9 +674,6 @@ private:
     char *midi_file_name;
     Mix_Music *midi_info;
 
-#ifdef USE_CDROM    
-    SDL_CD *cdrom_info;
-#endif
     int current_cd_track;
     bool cd_play_loop_flag;
     bool music_play_loop_flag;
@@ -727,10 +698,6 @@ private:
     unsigned char *layer_smpeg_buffer;
     bool layer_smpeg_loop_flag;
     AnimationInfo *smpeg_info;
-#if defined(USE_SMPEG)
-    SMPEG* layer_smpeg_sample;
-    SMPEG_Filter layer_smpeg_filter;
-#endif
     
     int playSound(const char *filename, int format, bool loop_flag, int channel=0);
     void playCDAudio();

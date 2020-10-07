@@ -195,10 +195,6 @@ void ONScripter::drawChar( char* text, FontInfo *info, bool flush_flag, bool loo
             exit(-1);
         }
     }
-#if defined(PSP)
-    else
-        info->openFont( font_file, screen_ratio1, screen_ratio2 );
-#endif
 
     if ( info->isEndOfLine() ){
         info->newLine();
@@ -726,15 +722,6 @@ int ONScripter::textCommand()
 
     enterTextDisplayMode();
 
-#ifdef USE_LUA
-    if (lua_handler.isCallbackEnabled(LUAHandler::LUA_TEXT))
-    {
-        if (lua_handler.callFunction(true, "text"))
-            errorAndExit( lua_handler.error_str );
-        processEOT();
-    }
-    else
-#endif    
     while(processText());
 
     return RET_CONTINUE;

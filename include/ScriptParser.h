@@ -36,9 +36,6 @@
 #include "DirectReader.h"
 #include "AnimationInfo.h"
 #include "FontInfo.h"
-#ifdef USE_LUA
-#include "LUAHandler.h"
-#endif
 #include "coding2utf16.h"
 #ifdef USE_BUILTIN_LAYER_EFFECTS
 #include "builtin_layer.h"
@@ -266,9 +263,6 @@ protected:
     ScriptHandler::LabelInfo current_label_info;
     int current_line;
 
-#ifdef USE_LUA
-    LUAHandler lua_handler;
-#endif
 
     /* ---------------------------------------- */
     /* Global definitions */

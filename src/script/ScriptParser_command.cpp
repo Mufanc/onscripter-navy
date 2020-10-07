@@ -25,9 +25,7 @@
 #include "ScriptParser.h"
 #include "Utils.h"
 #include <math.h>
-#if defined(LINUX) || defined(MACOSX) || defined(IOS)
 #include <sys/stat.h>
-#endif
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -354,7 +352,6 @@ int ScriptParser::savedirCommand()
         save_dir = new char[ strlen(archive_path) + strlen(path) + 2 ];
         sprintf( save_dir, "%s%s%c", archive_path, path, DELIMITER );
 
-#if defined(LINUX) || defined(MACOSX) || defined(IOS)
         struct stat buf;
         if ( stat( save_dir, &buf ) != 0 ){
             fprintf(stderr, "savedir: %s doesn't exist.\n", save_dir);
@@ -363,7 +360,6 @@ int ScriptParser::savedirCommand()
         
             return RET_CONTINUE;
         }
-#endif
         
         script_h.setSaveDir(save_dir);
         setStr(&save_dir_envdata, path);
@@ -754,9 +750,6 @@ int ScriptParser::luacallCommand()
 {
     const char *label = script_h.readLabel();
 
-#ifdef USE_LUA
-    lua_handler.addCallback(label);
-#endif
     
     return RET_CONTINUE;
 }

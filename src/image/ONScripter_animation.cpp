@@ -63,12 +63,6 @@ int ONScripter::calcDurationToNextAnimation()
         }
     }
 
-#ifdef USE_LUA
-    if (lua_handler.is_animatable && !script_h.isExternalScript()){
-        if (min == 0 || min > lua_handler.next_time)
-            min = lua_handler.next_time;
-    }
-#endif
 
     return min;
 }
@@ -83,32 +77,6 @@ void ONScripter::proceedAnimation(int current_time)
         if (sprite_info[i].proceedAnimation(current_time))
             flushDirect(sprite_info[i].pos, refreshMode() | (draw_cursor_flag?REFRESH_CURSOR_MODE:0));
 
-#ifdef USE_LUA
-    if (lua_handler.is_animatable && !script_h.isExternalScript()){
-        while(lua_handler.next_time <= current_time){
-            int tmp_event_mode = event_mode;
-            int tmp_next_time = next_time;
-            int tmp_string_buffer_offset = string_buffer_offset;
-
-            char *current = script_h.getCurrent();
-            if (lua_handler.isCallbackEnabled(LUAHandler::LUA_ANIMATION))
-                if (lua_handler.callFunction(true, "animation"))
-                    errorAndExit( lua_handler.error_str );
-            script_h.setCurrent(current);
-            readToken();
-
-            string_buffer_offset = tmp_string_buffer_offset;
-            next_time = tmp_next_time;
-            event_mode = tmp_event_mode;
-
-            lua_handler.next_time += lua_handler.duration_time;
-            if (lua_handler.duration_time <= 0){
-                lua_handler.next_time = current_time;
-                break;
-            }
-        }
-    }
-#endif
 
     if (!textgosub_label &&
         (clickstr_state == CLICK_WAIT || clickstr_state == CLICK_NEWPAGE)){

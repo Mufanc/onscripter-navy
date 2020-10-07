@@ -38,11 +38,7 @@ typedef unsigned char uchar3[3];
 
 class AnimationInfo{
 public:
-#if defined(BPP16)
-    typedef Uint16 ONSBuf;
-#else
     typedef Uint32 ONSBuf;
-#endif    
     enum { TRANS_ALPHA          = 1,
            TRANS_TOPLEFT        = 2,
            TRANS_COPY           = 3,
@@ -161,9 +157,6 @@ public:
     void setImage( SDL_Surface *surface, Uint32 texture_format );
     unsigned char getAlpha(int x, int y);
 
-#ifdef USE_SMPEG
-    void convertFromYUV(SDL_Overlay *src);
-#endif
 };
 
 #endif // __ANIMATION_INFO_H__

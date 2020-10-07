@@ -23,18 +23,11 @@
  */
 
 #include "ONScripter.h"
-#if defined(LINUX) || defined(MACOSX) || defined(IOS)
 #include <sys/types.h>
 #include <sys/stat.h>
-#elif defined(WIN32)
-#include <direct.h>
-#endif
 #include "version.h"
 #include "Utils.h"
 
-#if defined(MACOSX) && (SDL_COMPILEDVERSION >= 1208)
-#include <CoreFoundation/CoreFoundation.h>
-#endif
 
 extern SDL_TimerID timer_bgmfade_id;
 extern "C" Uint32 SDLCALL bgmfadeCallback( Uint32 interval, void *param );
@@ -478,14 +471,10 @@ int ONScripter::sp_rgb_gradationCommand()
     // replace pixels of the key-color with the specified color in gradation
     for (i=upper_bound ; i<=lower_bound ; i++){
         ONSBuf *buf = (ONSBuf *)surface->pixels + surface->w * i;
-#if defined(BPP16)    
-        unsigned char *alphap = ai->alpha_buf + surface->w * i;
-#else
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
         unsigned char *alphap = (unsigned char *)buf + 3;
 #else
         unsigned char *alphap = (unsigned char *)buf;
-#endif
 #endif
         Uint32 color = alpha << surface->format->Ashift;
         if (upper_bound != lower_bound){
@@ -504,11 +493,7 @@ int ONScripter::sp_rgb_gradationCommand()
                 *buf = color;
                 *alphap = alpha;
             }
-#if defined(BPP16)                
-            alphap++;
-#else
             alphap += 4;
-#endif                
         }
     }
     
@@ -1263,16 +1248,7 @@ int ONScripter::playCommand()
 
 int ONScripter::ofscopyCommand()
 {
-#ifdef USE_SDL_RENDERER
-    SDL_Surface *tmp_surface = AnimationInfo::alloc32bitSurface(render_view_rect.w, render_view_rect.h, texture_format);
-    SDL_LockSurface(tmp_surface);
-    SDL_RenderReadPixels(renderer, &render_view_rect, tmp_surface->format->format, tmp_surface->pixels, tmp_surface->pitch);
-    SDL_UnlockSurface(tmp_surface);
-    resizeSurface( tmp_surface, accumulation_surface );
-    SDL_FreeSurface(tmp_surface);
-#else
     SDL_BlitSurface(screen_surface, NULL, accumulation_surface, NULL);
-#endif
 
     return RET_CONTINUE;
 }
@@ -1858,12 +1834,6 @@ int ONScripter::loadgameCommand()
 
         flushEvent();
 
-#ifdef USE_LUA
-        if (lua_handler.isCallbackEnabled(LUAHandler::LUA_LOAD)){
-            if (lua_handler.callFunction(true, "load", &no))
-                errorAndExit( lua_handler.error_str );
-        }
-#endif
 
         if (loadgosub_label)
             gosubReal( loadgosub_label, script_h.getCurrent() );
@@ -1910,26 +1880,6 @@ int ONScripter::ldCommand()
 
     return RET_CONTINUE;
 }
-#if defined(USE_SMPEG)
-static void smpeg_filter_callback( SDL_Overlay * dst, SDL_Overlay * src, SDL_Rect * region, SMPEG_FilterInfo * filter_info, void * data )
-{
-    if (dst){
-        dst->w = 0;
-        dst->h = 0;
-    }
-
-    ONScripter *ons = (ONScripter*)data;
-    AnimationInfo *ai = ons->getSMPEGInfo();
-    if (!ai) return;
-
-    ai->convertFromYUV(src);
-    ons->updateEffectDst();
-}
-
-static void smpeg_filter_destroy( struct SMPEG_Filter * filter )
-{
-}
-#endif
 
 #ifdef USE_BUILTIN_LAYER_EFFECTS
 #include "builtin_layer.h"
@@ -2029,10 +1979,6 @@ int ONScripter::isdownCommand()
 {
     script_h.readInt();
 
-#if defined(IOS) || defined(ANDROID) || defined(WINRT)
-    if (num_fingers > 1)
-        current_button_state.down_flag = false;
-#endif
 
     if ( current_button_state.down_flag )
         script_h.setInt( &script_h.current_variable, 1 );
@@ -2309,19 +2255,8 @@ int ONScripter::getscreenshotCommand()
 
     screenshot_w = w;
     screenshot_h = h;
-#ifdef USE_SDL_RENDERER
-    if (screenshot_surface == NULL) screenshot_surface = AnimationInfo::alloc32bitSurface(render_view_rect.w, render_view_rect.h, texture_format);
-    if (screen_dirty_flag) {
-        SDL_LockSurface(screenshot_surface);
-        SDL_RenderReadPixels(renderer, &render_view_rect, screenshot_surface->format->format, screenshot_surface->pixels, screenshot_surface->pitch);
-        SDL_UnlockSurface(screenshot_surface);
-    } else {
-        SDL_BlitSurface(accumulation_surface, nullptr, screenshot_surface, nullptr);
-    }
-#else
     if (screenshot_surface == NULL) screenshot_surface = AnimationInfo::alloc32bitSurface(screen_device_width, screen_device_height, texture_format);
     SDL_BlitSurface(screen_surface, NULL, screenshot_surface, NULL);
-#endif
 
     return RET_CONTINUE;
 }
@@ -2660,13 +2595,6 @@ int ONScripter::gameCommand()
     loadCursor( 0, NULL, 0, 0 );
     loadCursor( 1, NULL, 0, 0 );
 
-#ifdef USE_LUA
-    lua_handler.loadInitScript();
-    if (lua_handler.isCallbackEnabled(LUAHandler::LUA_RESET)){
-        if (lua_handler.callFunction(true, "reset"))
-            errorAndExit( lua_handler.error_str );
-    }
-#endif
 
     return RET_CONTINUE;
 }
@@ -2719,11 +2647,7 @@ int ONScripter::exec_dllCommand()
             c += 7;
             char *dir = new char[strlen(archive_path) + strlen(buf+c) + 1];
             sprintf(dir, "%s%s", archive_path, buf+c);
-#if defined(LINUX) || defined(MACOSX) || defined(IOS)
             mkdir(dir, 0755);
-#elif defined(WIN32)
-            _mkdir(dir);
-#endif
             delete[] dir;
         }
         return RET_CONTINUE;
@@ -3083,9 +3007,6 @@ int ONScripter::defineresetCommand()
     if ( loadFileIOBuf( "gloval.sav" ) > 0 )
         readVariables( script_h.global_variable_border, script_h.variable_range );
 
-#ifdef USE_LUA
-    lua_handler.init(this, &script_h, screen_ratio1, screen_ratio2);
-#endif    
 
     current_mode = DEFINE_MODE;
 
@@ -3306,15 +3227,13 @@ int ONScripter::captionCommand()
     char *buf2 = new char[len*3+1];
 #if defined(MACOSX) && (SDL_COMPILEDVERSION >= 1208) || SDL_VERSION_ATLEAST(2,0,0)
     DirectReader::convertCodingToUTF8(buf2, buf);
-#elif defined(LINUX) || ((defined(WIN32) || defined(_WIN32)) && defined(UTF8_CAPTION))
+#else
 #if defined(UTF8_CAPTION)
     DirectReader::convertCodingToUTF8(buf2, buf);
 #else
     strcpy(buf2, buf);
     DirectReader::convertCodingToEUC(buf2);
 #endif
-#else
-    strcpy(buf2, buf);
 #endif
     
     setStr( &wm_title_string, buf2 );
@@ -3521,10 +3440,6 @@ int ONScripter::btndefCommand()
         const char *buf = script_h.readStr();
 
         btndef_info.remove();
-#ifdef USE_SDL_RENDERER
-        if (blt_texture != NULL) SDL_DestroyTexture(blt_texture);
-        blt_texture = NULL;
-#endif
 
         if ( buf[0] != '\0' ){
             btndef_info.setImageName( buf );
@@ -3627,21 +3542,6 @@ int ONScripter::brCommand()
     return RET_CONTINUE;
 }
 
-#ifdef USE_SDL_RENDERER
-static SDL_Texture* createMaximumTexture(SDL_Renderer *renderer, SDL_Rect &blt_rect, const SDL_Rect &src_rect, SDL_Surface *blt_surface,
-    Uint32 texture_format, int max_texture_width, int max_texture_height) {
-    if (src_rect.w > max_texture_width || src_rect.h > max_texture_height) utils::printInfo("Texture too large");
-    blt_rect.w = blt_surface->w - src_rect.x > max_texture_width ? max_texture_width : blt_surface->w - src_rect.x;
-    blt_rect.h = blt_surface->h - src_rect.y > max_texture_height ? max_texture_height : blt_surface->h - src_rect.y;
-    blt_rect.x = src_rect.x;
-    blt_rect.y = src_rect.y;
-    SDL_Surface *surface = AnimationInfo::alloc32bitSurface(blt_rect.w, blt_rect.h, texture_format);
-    SDL_BlitSurface(blt_surface, &blt_rect, surface, NULL);
-    SDL_Texture *blt_texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-    return blt_texture;
-}
-#endif
 
 int ONScripter::bltCommand()
 {
@@ -3660,46 +3560,6 @@ int ONScripter::bltCommand()
     if (btndef_info.image_surface == NULL) return RET_CONTINUE;
     if (dw == 0 || dh == 0 || sw == 0 || sh == 0) return RET_CONTINUE;
     
-#ifdef USE_SDL_RENDERER
-    if (sx >= 0 && sy >= 0 && sw > 0 && sh > 0) {
-        if (sx + sw > btndef_info.image_surface->w) sw = btndef_info.image_surface->w - sx;
-        if (sy + sh > btndef_info.image_surface->h) sh = btndef_info.image_surface->h - sy;
-        if (dx + dw > screen_width) dw = screen_width - dx;
-        else if (dx + dw < 0) dx = -dx;
-        if (dy + dh > screen_height) dh = screen_height - dy;
-        else if (dy + dh < 0) dh = -dy;
-        SDL_Rect src_rect = {sx,sy,sw,sh};
-        SDL_Rect dst_rect = {dx,dy,dw,dh};
-
-        if (blt_texture == NULL) {
-          if (btndef_info.image_surface->w > max_texture_width || btndef_info.image_surface->h > max_texture_height) {
-            blt_texture = createMaximumTexture(renderer, blt_texture_src_rect, src_rect, btndef_info.image_surface,
-              texture_format, max_texture_width, max_texture_height);
-          } else {
-            blt_texture_src_rect.x = 0;
-            blt_texture_src_rect.y = 0;
-            blt_texture_src_rect.w = btndef_info.image_surface->w;
-            blt_texture_src_rect.h = btndef_info.image_surface->h;
-            blt_texture = SDL_CreateTextureFromSurface(renderer, btndef_info.image_surface);
-          }
-        } else {
-          if (sx < blt_texture_src_rect.x || sy < blt_texture_src_rect.y
-            || sx + sw > blt_texture_src_rect.x + blt_texture_src_rect.w || sy + sh > blt_texture_src_rect.y + blt_texture_src_rect.h) {
-            SDL_DestroyTexture(blt_texture);
-            blt_texture = createMaximumTexture(renderer, blt_texture_src_rect, src_rect, btndef_info.image_surface,
-              texture_format, max_texture_width, max_texture_height);
-          }       
-        }
-        src_rect.x -= blt_texture_src_rect.x;
-        src_rect.y -= blt_texture_src_rect.y;
-        screen_dirty_flag = true;
-        SDL_RenderCopy(renderer, blt_texture, &src_rect, &dst_rect);
-        SDL_RenderPresent(renderer);
-        dirty_rect.clear();
-    } else {
-      utils::printError("blt:Wrong arguments.");
-    }
-#else
     if ( sw == dw && sw > 0 && sh == dh && sh > 0 ){
       SDL_Rect src_rect = {sx,sy,sw,sh};
       SDL_Rect dst_rect = {dx,dy,dw,dh};
@@ -3711,13 +3571,8 @@ int ONScripter::bltCommand()
         SDL_LockSurface(btndef_info.image_surface);
         ONSBuf *dst_buf = (ONSBuf*)accumulation_surface->pixels;
         ONSBuf *src_buf = (ONSBuf*)btndef_info.image_surface->pixels;
-#if defined(BPP16)
-        int dst_width = accumulation_surface->pitch / 2;
-        int src_width = btndef_info.image_surface->pitch / 2;
-#else
         int dst_width = accumulation_surface->pitch / 4;
         int src_width = btndef_info.image_surface->pitch / 4;
-#endif
 
         int start_y = dy, end_y = dy+dh;
         if (dh < 0){
@@ -3759,7 +3614,6 @@ int ONScripter::bltCommand()
         dst_rect.h = end_y-start_y;
         flushDirect( dst_rect, REFRESH_NONE_MODE );
     }
-#endif
 
     return RET_CONTINUE;
 }
@@ -4196,15 +4050,4 @@ void ONScripter::NSDSetSpriteCommand(int spnum, int texnum, const char *tag)
 
 void ONScripter::stopSMPEG()
 {
-#if defined(USE_SMPEG)
-    if (layer_smpeg_sample){
-        SMPEG_stop( layer_smpeg_sample );
-        SMPEG_delete( layer_smpeg_sample );
-        layer_smpeg_sample = NULL;
-    }
-    if (layer_smpeg_buffer){
-        delete[] layer_smpeg_buffer;
-        layer_smpeg_buffer = NULL;
-    }
-#endif        
 }

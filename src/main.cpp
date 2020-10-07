@@ -31,22 +31,8 @@
 ONScripter ons;
 Coding2UTF16 *coding2utf16 = NULL;
 
-#if defined(IOS)
-#import <Foundation/NSArray.h>
-#import <UIKit/UIKit.h>
-#import "DataCopier.h"
-#import "DataDownloader.h"
-#import "ScriptSelector.h"
-#import "MoviePlayer.h"
-#endif
 
-#ifdef ANDROID
-#include <unistd.h>
-#endif
 
-#ifdef WINRT
-#include "ScriptSelector.h"
-#endif
 
 void optionHelp()
 {
@@ -82,139 +68,7 @@ void optionVersion()
     exit(0);
 }
 
-#ifdef ANDROID
-extern "C"
-{
-#include <jni.h>
-#include <android/log.h>
-static JavaVM *jniVM = NULL;
-static jobject JavaONScripter = NULL;
-static jmethodID JavaPlayVideo = NULL;
-static jmethodID JavaGetFD = NULL;
-static jmethodID JavaMkdir = NULL;
 
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
-{
-    jniVM = vm;
-    return JNI_VERSION_1_2;
-};
-
-JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved)
-{
-    jniVM = vm;
-};
-
-#ifndef SDL_JAVA_PACKAGE_PATH
-#error You have to define SDL_JAVA_PACKAGE_PATH to your package path with dots replaced with underscores, for example "com_example_SanAngeles"
-#endif
-#define JAVA_EXPORT_NAME2(name,package) Java_##package##_##name
-#define JAVA_EXPORT_NAME1(name,package) JAVA_EXPORT_NAME2(name,package)
-#define JAVA_EXPORT_NAME(name) JAVA_EXPORT_NAME1(name,SDL_JAVA_PACKAGE_PATH)
-
-JNIEXPORT jint JNICALL JAVA_EXPORT_NAME(ONScripter_nativeInitJavaCallbacks) (JNIEnv * jniEnv, jobject thiz)
-{
-    JavaONScripter = jniEnv->NewGlobalRef(thiz);
-    jclass JavaONScripterClass = jniEnv->GetObjectClass(JavaONScripter);
-    JavaPlayVideo = jniEnv->GetMethodID(JavaONScripterClass, "playVideo", "([C)V");
-    JavaGetFD = jniEnv->GetMethodID(JavaONScripterClass, "getFD", "([CI)I");
-    JavaMkdir = jniEnv->GetMethodID(JavaONScripterClass, "mkdir", "([C)I");
-    return 0;
-}
-
-JNIEXPORT jint JNICALL 
-JAVA_EXPORT_NAME(ONScripter_nativeGetWidth) ( JNIEnv*  env, jobject thiz )
-{
-    return ons.getWidth();
-}
-
-JNIEXPORT jint JNICALL 
-JAVA_EXPORT_NAME(ONScripter_nativeGetHeight) ( JNIEnv*  env, jobject thiz )
-{
-    return ons.getHeight();
-}
-
-void playVideoAndroid(const char *filename)
-{
-    JNIEnv * jniEnv = NULL;
-    jniVM->AttachCurrentThread(&jniEnv, NULL);
-
-    if (!jniEnv){
-        __android_log_print(ANDROID_LOG_ERROR, "ONS", "ONScripter::playVideoAndroid: Java VM AttachCurrentThread() failed");
-        return;
-    }
-
-    jchar *jc = new jchar[strlen(filename)];
-    for (int i=0 ; i<strlen(filename) ; i++)
-        jc[i] = filename[i];
-    jcharArray jca = jniEnv->NewCharArray(strlen(filename));
-    jniEnv->SetCharArrayRegion(jca, 0, strlen(filename), jc);
-    jniEnv->CallVoidMethod( JavaONScripter, JavaPlayVideo, jca );
-    jniEnv->DeleteLocalRef(jca);
-    delete[] jc;
-}
-
-#undef fopen
-FILE *fopen_ons(const char *path, const char *mode)
-{
-    int mode2 = 0;
-    if (mode[0] == 'w') mode2 = 1;
-    FILE *fp = fopen(path, mode);
-    if (fp || mode2 ==0) return fp;
-    
-    JNIEnv * jniEnv = NULL;
-    jniVM->AttachCurrentThread(&jniEnv, NULL);
-
-    if (!jniEnv){
-        __android_log_print(ANDROID_LOG_ERROR, "ONS", "ONScripter::getFD: Java VM AttachCurrentThread() failed");
-        return NULL;
-    }
-
-    jchar *jc = new jchar[strlen(path)];
-    for (int i=0 ; i<strlen(path) ; i++)
-        jc[i] = path[i];
-    jcharArray jca = jniEnv->NewCharArray(strlen(path));
-    jniEnv->SetCharArrayRegion(jca, 0, strlen(path), jc);
-    int fd = jniEnv->CallIntMethod( JavaONScripter, JavaGetFD, jca, mode2 );
-    jniEnv->DeleteLocalRef(jca);
-    delete[] jc;
-
-    return fdopen(fd, mode);
-}
-
-#undef mkdir
-int mkdir_ons(const char *pathname, mode_t mode)
-{
-    JNIEnv * jniEnv = NULL;
-    jniVM->AttachCurrentThread(&jniEnv, NULL);
-
-    if (!jniEnv){
-        __android_log_print(ANDROID_LOG_ERROR, "ONS", "ONScripter::mkdir: Java VM AttachCurrentThread() failed");
-        return -1;
-    }
-
-    jchar *jc = new jchar[strlen(pathname)];
-    for (int i=0 ; i<strlen(pathname) ; i++)
-        jc[i] = pathname[i];
-    jcharArray jca = jniEnv->NewCharArray(strlen(pathname));
-    jniEnv->SetCharArrayRegion(jca, 0, strlen(pathname), jc);
-    int ret = jniEnv->CallIntMethod( JavaONScripter, JavaMkdir, jca );
-    jniEnv->DeleteLocalRef(jca);
-    delete[] jc;
-
-    return ret;
-}
-}
-#endif
-
-#if defined(IOS)
-extern "C" void playVideoIOS(const char *filename, bool click_flag, bool loop_flag)
-{
-    NSString *str = [[NSString alloc] initWithUTF8String:filename];
-    id obj = [MoviePlayer alloc];
-    [[obj init] play:str click : click_flag loop : loop_flag];
-    [obj release];
-}
-#endif
 
 void parseOption(int argc, char *argv[]) {
     while (argc > 0) {
@@ -291,25 +145,6 @@ void parseOption(int argc, char *argv[]) {
             else if (!strcmp(argv[0]+1, "-no-vsync")){
               ons.setVsyncOff();
             }
-#if defined(ANDROID) 
-#if SDL_VERSION_ATLEAST(2,0,0)
-            else if ( !strcmp(argv[0]+1, "-compatible") ){
-                ons.setCompatibilityMode();
-            }
-#else
-            else if ( !strcmp( argv[0]+1, "-open-only" ) ){
-                argc--;
-                argv++;
-                if (ons.openScript()) exit(-1);
-                return 0;
-            }
-#endif //SDL_VERSION_ATLEAST(2,0,0)
-            else if ( !strcmp(argv[0] + 1, "-save-dir") ){
-                argc--;
-                argv++;
-                ons.setSaveDir(argv[0]);
-            }
-#endif
             else{
                 utils::printInfo(" unknown option %s\n", argv[0]);
             }
@@ -322,70 +157,11 @@ void parseOption(int argc, char *argv[]) {
     }
 }
 
-#if (defined(QWS) || defined(ANDROID)) && !SDL_VERSION_ATLEAST(2,0,0)
-int SDL_main(int argc, char **argv)
-#elif defined(PSP)
-extern "C" int main(int argc, char **argv)
-#else
 int main(int argc, char *argv[])
-#endif
 {
     utils::printInfo("ONScripter-Jh version %s (%s, %d.%02d)\n", ONS_JH_VERSION, ONS_VERSION, NSC_VERSION / 100, NSC_VERSION % 100);
 
-#if defined(PSP)
-    ons.disableRescale();
-    ons.enableButtonShortCut();
-    SetupCallbacks();
-#elif defined(WINRT)
-    {
-        ScriptSelector ss;
-        ons.setArchivePath(ss.selectedPath.c_str());
-    }
-    ons.disableRescale();
-#elif defined(ANDROID)
-    ons.enableButtonShortCut();
-#endif
 
-#if defined(IOS)
-#if defined(HAVE_CONTENTS)
-    if ([[[DataCopier alloc] init] copy]) exit(-1);
-#endif
-
-    // scripts and archives are stored under /Library/Caches
-    NSArray* cpaths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    NSString* cpath = [[cpaths objectAtIndex : 0] stringByAppendingPathComponent:@"ONS"];
-    char filename[256];
-    strcpy(filename, [cpath UTF8String]);
-    ons.setArchivePath(filename);
-
-    // output files are stored under /Documents
-    NSArray* dpaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString* dpath = [[dpaths objectAtIndex : 0] stringByAppendingPathComponent:@"ONS"];
-    strcpy(filename, [dpath UTF8String]);
-    ons.setSaveDir(filename);
-
-#if defined(ZIP_URL)
-    if ([[[DataDownloader alloc] init] download]) exit(-1);
-#endif
-
-#if defined(USE_SELECTOR)
-    // scripts and archives are stored under /Library/Caches
-    cpath = [[[ScriptSelector alloc] initWithStyle:UITableViewStylePlain] select];
-    strcpy(filename, [cpath UTF8String]);
-    ons.setArchivePath(filename);
-
-    // output files are stored under /Documents
-    dpath = [[dpaths objectAtIndex : 0] stringByAppendingPathComponent:[cpath lastPathComponent]];
-    NSFileManager *fm = [NSFileManager defaultManager];
-    [fm createDirectoryAtPath : dpath withIntermediateDirectories : YES attributes : nil error : nil];
-    strcpy(filename, [dpath UTF8String]);
-    ons.setSaveDir(filename);
-#endif
-
-#if defined(RENDER_FONT_OUTLINE)
-    ons.renderFontOutline();
-#endif
-#endif
 
     // ----------------------------------------
     // Parse options
