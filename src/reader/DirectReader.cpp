@@ -220,11 +220,6 @@ void DirectReader::writeLong( FILE *fp, unsigned long ch )
     fwrite( &buf, 1, 4, fp );
 }
 
-unsigned short DirectReader::swapShort( unsigned short ch )
-{
-    return ((ch & 0xff00) >> 8) | ((ch & 0x00ff) << 8);
-}
-
 unsigned long DirectReader::swapLong( unsigned long ch )
 {
     return ((ch & 0xff000000) >> 24) | ((ch & 0x00ff0000) >> 8 ) |
@@ -278,14 +273,6 @@ int DirectReader::getRegisteredCompressionType( const char *file_name )
     return NO_COMPRESSION;
 }
     
-struct DirectReader::FileInfo DirectReader::getFileByIndex( unsigned int index )
-{
-    DirectReader::FileInfo fi;
-    memset(&fi, 0, sizeof(DirectReader::FileInfo));
-    
-    return fi;
-}
-
 FILE *DirectReader::getFileHandle( const char *file_name, int &compression_type, size_t *length )
 {
     FILE *fp;
@@ -384,44 +371,6 @@ void DirectReader::convertCodingToEUC( char *buf )
         }
         i++;
     }
-}
-
-void DirectReader::convertCodingToUTF8( char *dst_buf, const char *src_buf )
-{
-    int i, c;
-    unsigned short unicode;
-    unsigned char utf8_buf[4];
-    
-    while(*src_buf){
-        if (IS_TWO_BYTE(*src_buf)){
-            unsigned short index = *(unsigned char*)src_buf++;
-            index = index << 8 | (*(unsigned char*)src_buf++);
-            unicode = coding2utf16->conv2UTF16( index );
-            c = coding2utf16->convUTF16ToUTF8(utf8_buf, unicode);
-            for (i=0 ; i<c ; i++)
-                *dst_buf++ = utf8_buf[i];
-        }
-        else{
-            *dst_buf++ = *src_buf++;
-        }
-    }
-    *dst_buf++ = 0;
-}
-
-void DirectReader::convertFromUTF8ToCoding(char *dst_buf, const char *src_buf)
-{
-    while(*src_buf){
-        if (*src_buf & 0x80){
-            unsigned short unicode = coding2utf16->convUTF8ToUTF16(&src_buf);
-            unsigned short local = coding2utf16->convUTF162Coding(unicode);
-            *dst_buf++ = (local>>8);
-            *dst_buf++ = local & 0xff;
-        }
-        else{
-            *dst_buf++ = *src_buf++;
-        }
-    }
-    *dst_buf++ = 0;
 }
 
 size_t DirectReader::decodeNBZ( FILE *fp, size_t offset, unsigned char *buf )

@@ -43,11 +43,6 @@ void ONScripter::setCaption(const char *title, const char *iconstr) {
     SDL_WM_SetCaption(title, iconstr);
 }
 
-void ONScripter::setScreenDirty(bool screen_dirty)
-{
-    screen_dirty_flag = screen_dirty;
-}
-
 void ONScripter::setDebugLevel(int debug) {
     debug_level = debug;
 }
@@ -61,12 +56,6 @@ void ONScripter::initSDL()
         utils::printError("Couldn't initialize SDL: %s\n", SDL_GetError());
         exit(-1);
     }
-
-
-
-    if(SDL_InitSubSystem( SDL_INIT_JOYSTICK ) == 0 && SDL_JoystickOpen(0) != NULL)
-        utils::printInfo("Initialize JOYSTICK\n");
-    
 
     /* ---------------------------------------- */
     /* Initialize SDL */
@@ -169,7 +158,6 @@ ONScripter::ONScripter()
     texture_info = new AnimationInfo[MAX_TEXTURE_NUM];
     smpeg_info = NULL;
     current_button_state.down_flag = false;
-    compatibilityMode = false;
     vsync = true;
 
     int i;
@@ -221,14 +209,6 @@ void ONScripter::setArchivePath(const char *path)
     sprintf( archive_path, RELATIVEPATH "%s%c", path, DELIMITER );
 }
 
-void ONScripter::setSaveDir(const char *path)
-{
-    if (save_dir) delete[] save_dir;
-    save_dir = new char[ RELATIVEPATHLENGTH + strlen(path) + 2 ];
-    sprintf( save_dir, RELATIVEPATH "%s%c", path, DELIMITER );
-    script_h.setSaveDir(save_dir);
-}
-
 void ONScripter::setFullscreenMode()
 {
     fullscreen_mode = true;
@@ -237,11 +217,6 @@ void ONScripter::setFullscreenMode()
 void ONScripter::setWindowMode()
 {
     window_mode = true;
-}
-
-void ONScripter::setCompatibilityMode()
-{
-    compatibilityMode = true;
 }
 
 void ONScripter::setVsyncOff() {
@@ -767,12 +742,6 @@ void ONScripter::executeLabel()
     
     utils::printError(" ***** End *****\n");
     endCommand();
-}
-
-void ONScripter::runScript()
-{
-    readToken();
-    parseLine();
 }
 
 int ONScripter::parseLine( )

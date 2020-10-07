@@ -48,8 +48,6 @@ public:
   virtual void init() = 0;
   virtual uint16_t conv2UTF16(uint16_t) const = 0;
   virtual uint16_t convUTF162Coding(uint16_t) const = 0;
-  int convUTF16ToUTF8(unsigned char*,uint16_t) const;
-  unsigned short convUTF8ToUTF16(const char**);
   virtual ~Coding2UTF16() {};
 };
 

@@ -79,10 +79,8 @@ public:
     void setRegistryFile(const char *filename);
     void setDLLFile(const char *filename);
     void setArchivePath(const char *path);
-    void setSaveDir(const char *path);
     void setFullscreenMode();
     void setWindowMode();
-    void setCompatibilityMode();
     void setVsyncOff();
     void setFontCache();
     void setDebugLevel(int debug);
@@ -301,16 +299,7 @@ public:
     int allsphideCommand();
     int amspCommand();
 
-    void NSDCallCommand(int texnum, const char *str1, int proc, const char *str2);
-    void NSDDeleteCommand(int texnum);
-    void NSDLoadCommand(int texnum, const char *str);
-    void NSDPresentRectCommand(int x1, int y1, int x2, int y2);
-    void NSDSp2Command(int texnum, int dcx, int dcy, int sx, int sy, int w, int h,
-                       int xs, int ys, int rot, int alpha);
-    void NSDSetSpriteCommand(int spnum, int texnum, const char *tag);
-
     void stopSMPEG();
-    void updateEffectDst();
     
 private:
     // ----------------------------------------
@@ -343,10 +332,8 @@ private:
     bool disable_rescale_flag;
     bool edit_flag;
     char *key_exe_file;
-    bool compatibilityMode;
     bool vsync;
     bool cacheFont;
-    bool screen_dirty_flag;
 
     // variables relevant to button
     ButtonState current_button_state, last_mouse_state;
@@ -416,7 +403,6 @@ private:
     void setFullScreen(bool fullscreen);
 public:
     void executeLabel();
-    void runScript();
     AnimationInfo *getSpriteInfo(int no){ return &sprite_info[no]; };
     AnimationInfo *getSprite2Info(int no){ return &sprite2_info[no]; };
     Uint32 getTextureFormat() { return texture_format; };
@@ -578,7 +564,6 @@ private:
     int  refresh_shadow_text_mode;
 
     void setCaption(const char *title, const char *iconstr = NULL);
-    void setScreenDirty(bool screen_dirty);
     // format = SDL_PIXELFORMAT_ABGR8888 for OpenGL ES 1.x, OpenGL ES 2.x (Android, iOS)
     // format = SDL_PIXELFORMAT_ARGB8888 for OpenGL, Direct3D (Windows, Linux, MacOSX) or for any 32bit surface without SDL_Renderer
     // format = SDL_PIXELFORMAT_RGB565 for any 16bit surface without SDL_Renderer (Android, Zaurus)

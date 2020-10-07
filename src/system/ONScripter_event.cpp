@@ -43,7 +43,6 @@
 #define EDIT_SELECT_STRING "MP3 vol (m)  SE vol (s)  Voice vol (v)  Numeric variable (n)"
 
 static SDL_TimerID timer_id = NULL;
-SDL_TimerID timer_cdaudio_id = NULL;
 SDL_TimerID timer_bgmfade_id = NULL;
 
 typedef SDLKey ONS_Key;
@@ -72,18 +71,6 @@ extern "C" Uint32 SDLCALL timerCallback( Uint32 interval, void *param )
     return 0;
 }
 
-extern "C" Uint32 cdaudioCallback( Uint32 interval, void *param )
-{
-    SDL_RemoveTimer( timer_cdaudio_id );
-    timer_cdaudio_id = NULL;
-
-    SDL_Event event;
-    event.type = ONS_CDAUDIO_EVENT;
-    SDL_PushEvent( &event );
-
-    return interval;
-}
-
 extern "C" Uint32 SDLCALL bgmfadeCallback( Uint32 interval, void *param )
 {
     SDL_Event event;
@@ -101,48 +88,6 @@ extern "C" Uint32 SDLCALL bgmfadeCallback( Uint32 interval, void *param )
 ONS_Key transKey(ONS_Key key)
 {
     return key;
-}
-
-ONS_Key transJoystickButton(Uint8 button)
-{
-    return SDLK_UNKNOWN;
-}
-
-SDL_KeyboardEvent transJoystickAxis(SDL_JoyAxisEvent &jaxis)
-{
-    static int old_axis=-1;
-
-    SDL_KeyboardEvent event;
-
-    ONS_Key axis_map[] = {SDLK_LEFT,  /* AL-LEFT  */
-                         SDLK_RIGHT, /* AL-RIGHT */
-                         SDLK_UP,    /* AL-UP    */
-                         SDLK_DOWN   /* AL-DOWN  */};
-
-    int axis = -1;
-    /* rerofumi: Jan.15.2007 */
-    /* ps3's pad has 0x1b axis (with analog button) */
-    if (jaxis.axis < 2){
-        axis = ((3200 > jaxis.value) && (jaxis.value > -3200) ? -1 :
-                (jaxis.axis * 2 + (jaxis.value>0 ? 1 : 0) ));
-    }
-
-    if (axis != old_axis){
-        if (axis == -1){
-            event.type = SDL_KEYUP;
-            event.keysym.sym = axis_map[old_axis];
-        }
-        else{
-            event.type = SDL_KEYDOWN;
-            event.keysym.sym = axis_map[axis];
-        }
-        old_axis = axis;
-    }
-    else{
-        event.keysym.sym = SDLK_UNKNOWN;
-    }
-    
-    return event;
 }
 
 void ONScripter::flushEventSub( SDL_Event &event )
@@ -1103,11 +1048,6 @@ void ONScripter::runEventLoop()
             ret = mousePressEvent( &event.button );
             if (ret) return;
             break;
-          case SDL_JOYBUTTONDOWN:
-            event.key.type = SDL_KEYDOWN;
-            event.key.keysym.sym = transJoystickButton(event.jbutton.button);
-            if(event.key.keysym.sym == SDLK_UNKNOWN)
-                break;
             
           case SDL_KEYDOWN:
             event.key.keysym.sym = transKey(event.key.keysym.sym);
@@ -1117,35 +1057,12 @@ void ONScripter::runEventLoop()
             if (ret) return;
             break;
 
-          case SDL_JOYBUTTONUP:
-            event.key.type = SDL_KEYUP;
-            event.key.keysym.sym = transJoystickButton(event.jbutton.button);
-            if(event.key.keysym.sym == SDLK_UNKNOWN)
-                break;
-            
           case SDL_KEYUP:
             event.key.keysym.sym = transKey(event.key.keysym.sym);
             keyUpEvent( &event.key );
             ret = keyPressEvent( &event.key );
             if (ret) return;
             break;
-
-          case SDL_JOYAXISMOTION:
-          {
-              SDL_KeyboardEvent ke = transJoystickAxis(event.jaxis);
-              if (ke.keysym.sym != SDLK_UNKNOWN){
-                  if (ke.type == SDL_KEYDOWN){
-                      keyDownEvent( &ke );
-                      if (btndown_flag)
-                          keyPressEvent( &ke );
-                  }
-                  else if (ke.type == SDL_KEYUP){
-                      keyUpEvent( &ke );
-                      keyPressEvent( &ke );
-                  }
-              }
-              break;
-          }
 
           case ONS_TIMER_EVENT:
             timerEvent(false);

@@ -129,10 +129,6 @@ public:
     void pushCurrent( char *pos );
     void popCurrent();
 
-    void enterExternalScript(char *pos); // LUA
-    void leaveExternalScript();
-    bool isExternalScript();
-
     int  getOffset( char *pos );
     char *getAddress( int offset );
     int  getLineByAddress( char *address );

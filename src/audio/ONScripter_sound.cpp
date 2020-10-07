@@ -35,10 +35,8 @@ extern bool ext_music_play_once_flag;
 
 extern "C"{
     extern void musicFinishCallback();
-    extern Uint32 SDLCALL cdaudioCallback( Uint32 interval, void *param );
 }
 extern void midiCallback( int sig );
-extern SDL_TimerID timer_cdaudio_id;
 
 extern SDL_TimerID timer_bgmfade_id;
 extern "C" Uint32 SDLCALL bgmfadeCallback( Uint32 interval, void *param );

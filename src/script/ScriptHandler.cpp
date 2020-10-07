@@ -442,44 +442,6 @@ void ScriptHandler::popCurrent()
     next_script = pushed_next_script;
 }
 
-void ScriptHandler::enterExternalScript(char *pos)
-{
-    ScriptContext *sc = new ScriptContext;
-    last_script_context->next = sc;
-    sc->prev = last_script_context;
-    last_script_context = sc;
-    
-    is_internal_script = true;
-    sc->current_script = current_script;
-    current_script = pos;
-    sc->next_script = next_script;
-    next_script = pos;
-    sc->end_status = end_status;
-    sc->current_variable = current_variable;
-    sc->pushed_variable = pushed_variable;
-}
-
-void ScriptHandler::leaveExternalScript()
-{
-    ScriptContext *sc = last_script_context;
-    last_script_context = sc->prev;
-    last_script_context->next = NULL;
-    if (last_script_context->prev == NULL)
-        is_internal_script = false;
-
-    current_script = sc->current_script;
-    next_script = sc->next_script;
-    end_status = sc->end_status;
-    current_variable = sc->current_variable;
-    pushed_variable = sc->pushed_variable;
-    delete sc;
-}
-
-bool ScriptHandler::isExternalScript()
-{
-    return !is_internal_script;
-}
-
 int ScriptHandler::getOffset( char *pos )
 {
     return pos - script_buffer;

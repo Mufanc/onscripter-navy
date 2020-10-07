@@ -101,31 +101,6 @@ int NsaReader::open( const char *nsa_path )
     return 0;
 }
 
-int NsaReader::openForConvert( char *nsa_name, int archive_type, unsigned int nsa_offset )
-{
-    sar_flag = false;
-    if ( ( archive_info.file_handle = ::fopen( nsa_name, "rb" ) ) == NULL ){
-        utils::printError( "can't open file %s\n", nsa_name );
-        return -1;
-    }
-
-    readArchive( &archive_info, archive_type, nsa_offset );
-
-    return 0;
-}
-
-int NsaReader::writeHeader( FILE *fp, int archive_type, int nsa_offset )
-{
-    ArchiveInfo *ai = &archive_info;
-    return writeHeaderSub( ai, fp, archive_type, nsa_offset );
-}
-
-size_t NsaReader::putFile( FILE *fp, int no, size_t offset, size_t length, size_t original_length, int compression_type, bool modified_flag, unsigned char *buffer )
-{
-    ArchiveInfo *ai = &archive_info;
-    return putFileSub( ai, fp, no, offset, length, original_length , compression_type, modified_flag, buffer );
-}
-
 const char *NsaReader::getArchiveName() const
 {
     return "nsa";
@@ -209,25 +184,4 @@ size_t NsaReader::getFile( const char *file_name, unsigned char *buffer, int *lo
     }
 
     return 0;
-}
-
-NsaReader::FileInfo NsaReader::getFileByIndex( unsigned int index )
-{
-    int i;
-    
-    for ( i=0 ; i<num_of_ns2_archives ; i++ ){
-        if ( index < archive_info_ns2[i].num_of_files ) return archive_info_ns2[i].fi_list[index];
-        index -= archive_info_ns2[i].num_of_files;
-    }
-
-    if ( index < archive_info.num_of_files ) return archive_info.fi_list[index];
-    index -= archive_info.num_of_files;
-
-    for ( i=0 ; i<num_of_nsa_archives ; i++ ){
-        if ( index < archive_info2[i].num_of_files ) return archive_info2[i].fi_list[index];
-        index -= archive_info2[i].num_of_files;
-    }
-    utils::printError("NsaReader::getFileByIndex  Index %d is out of range\n", index );
-
-    return archive_info.fi_list[0];
 }

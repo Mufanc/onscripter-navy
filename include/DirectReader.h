@@ -43,13 +43,10 @@ public:
     int getNumFiles();
     void registerCompressionType( const char *ext, int type );
 
-    struct FileInfo getFileByIndex( unsigned int index );
     size_t getFileLength( const char *file_name );
     size_t getFile( const char *file_name, unsigned char *buffer, int *location=NULL );
 
     static void convertCodingToEUC( char *buf );
-    static void convertCodingToUTF8( char *dst_buf, const char *src_buf );
-    static void convertFromUTF8ToCoding( char *dst_buf, const char *src_buf );
     
 protected:
     char *file_full_path;
@@ -97,7 +94,6 @@ protected:
     void writeChar( FILE *fp, unsigned char ch );
     void writeShort( FILE *fp, unsigned short ch );
     void writeLong( FILE *fp, unsigned long ch );
-    static unsigned short swapShort( unsigned short ch );
     static unsigned long swapLong( unsigned long ch );
     size_t decodeNBZ( FILE *fp, size_t offset, unsigned char *buf );
     size_t encodeNBZ( FILE *fp, size_t length, unsigned char *buf );

@@ -29,12 +29,6 @@
 #define EFFECT_STRIPE_CURTAIN_WIDTH (24 * screen_ratio1 / screen_ratio2)
 #define EFFECT_QUAKE_AMP (12 * screen_ratio1 / screen_ratio2)
 
-void ONScripter::updateEffectDst()
-{
-    update_effect_dst = true;
-    dirty_rect.fill( screen_width, screen_height );
-};
-
 void ONScripter::generateEffectDst(int effect_no)
 {
     int refresh_mode = refreshMode();
