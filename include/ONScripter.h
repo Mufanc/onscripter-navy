@@ -405,7 +405,6 @@ private:
     int  shortcut_mouse_line;
 
     void initSDL();
-    void calcRenderRect();
     void openAudio(int freq=-1);
     void reset(); // called on definereset
     void resetSub(); // called on reset

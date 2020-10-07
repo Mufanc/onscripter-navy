@@ -39,29 +39,6 @@ extern "C" void waveCallback(int channel);
 #define DEFAULT_AUTOMODE_TIME 1000
 
 
-void ONScripter::calcRenderRect() {
-    int vieww, viewh;
-    int renderw, renderh;
-    int swdh = screen_width * renderh;
-    int dwsh = renderw * screen_height;
-    if (swdh == dwsh) {
-        vieww = renderw;
-        viewh = renderh;
-    }
-    else if (swdh > dwsh) {
-        vieww = renderw;
-        viewh = (int)ceil(screen_height * ((float)renderw / screen_width));
-    }
-    else {
-        vieww = (int)ceil(screen_width * ((float)renderh / screen_height));
-        viewh = renderh;
-    }
-    render_view_rect.x = (renderw - vieww) / 2;
-    render_view_rect.y = (renderh - viewh) / 2;
-    render_view_rect.w = vieww;
-    render_view_rect.h = viewh;
-}
-
 void ONScripter::setCaption(const char *title, const char *iconstr) {
     SDL_WM_SetCaption(title, iconstr);
 }

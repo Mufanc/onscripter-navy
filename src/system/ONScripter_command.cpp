@@ -941,11 +941,6 @@ int ONScripter::savetimeCommand()
 
 int ONScripter::savescreenshotCommand()
 {
-    bool delete_flag = true;
-    if      ( script_h.isName( "savescreenshot2" ) ){
-        delete_flag = false;
-    }       
-
     if (screenshot_surface == NULL)
         screenshot_surface = AnimationInfo::alloc32bitSurface(screen_device_width, screen_device_height, texture_format);
 

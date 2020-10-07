@@ -748,9 +748,7 @@ int ScriptParser::luasubCommand()
 
 int ScriptParser::luacallCommand()
 {
-    const char *label = script_h.readLabel();
-
-    
+    script_h.readLabel();
     return RET_CONTINUE;
 }
 

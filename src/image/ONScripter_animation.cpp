@@ -101,7 +101,7 @@ void ONScripter::setupAnimationInfo( AnimationInfo *anim, FontInfo *info )
         anim->file_name && anim->surface_name &&
         strcmp(anim->file_name, anim->surface_name) == 0 &&
         ((!anim->mask_file_name && !anim->mask_surface_name) ||
-         (anim->mask_file_name && !anim->mask_surface_name &&
+         (anim->mask_file_name && anim->mask_surface_name &&
           strcmp(anim->mask_file_name, anim->mask_surface_name) == 0))) return;
 
     anim->deleteSurface();
