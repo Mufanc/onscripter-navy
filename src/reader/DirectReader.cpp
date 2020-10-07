@@ -302,13 +302,7 @@ FILE *DirectReader::getFileHandle( const char *file_name, int &compression_type,
         if ( (unsigned char)capital_name[i] > 0x80 ) i++;
     }
 
-#if defined(UTF8_FILESYSTEM)
-    convertCodingToUTF8(capital_name_tmp, capital_name);
-    strcpy(capital_name, capital_name_tmp);
-    len = strlen(capital_name);
-#else
     convertCodingToEUC(capital_name);
-#endif    
 
     *length = 0;
     if ( (fp = fopen( capital_name, "rb" )) != NULL && len >= 3 ){

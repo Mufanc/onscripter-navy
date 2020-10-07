@@ -63,11 +63,7 @@ void ONScripter::calcRenderRect() {
 }
 
 void ONScripter::setCaption(const char *title, const char *iconstr) {
-#if SDL_VERSION_ATLEAST(2,0,0)
-    SDL_SetWindowTitle(window, title);
-#else
     SDL_WM_SetCaption(title, iconstr);
-#endif
 }
 
 void ONScripter::setScreenDirty(bool screen_dirty)
@@ -104,27 +100,6 @@ void ONScripter::initSDL()
 
     screen_bpp = 32;
     
-#if   defined(PDA_AUTOSIZE)
-    SDL_Rect **modes;
-    modes = SDL_ListModes(NULL, SDL_FULLSCREEN);
-    if (modes == (SDL_Rect **)0) {
-        utils::printError("No Video mode available.\n");
-        exit(-1);
-    }
-    else if (modes == (SDL_Rect **)-1){
-        // no restriction
-    }
-    else{
-        int width;
-        if (modes[0]->w * screen_height > modes[0]->h * screen_width)
-            width = (modes[0]->h*screen_width/screen_height) & (~0x01); // to be 2 bytes aligned
-        else
-            width = modes[0]->w;
-        screen_ratio1 = width;
-        screen_ratio2 = script_h.screen_width;
-        screen_width  = width;
-    }
-#endif
 
     screen_height = screen_width*script_h.screen_height/script_h.screen_width;
 
@@ -169,11 +144,7 @@ void ONScripter::initSDL()
 void ONScripter::openAudio(int freq)
 {
     Mix_CloseAudio();
-#if (defined(PDA_WIDTH) || defined(PDA_AUTOSIZE)) && !defined(PSP) && !defined(IPHONE) && !defined(IOS) && !defined(PANDORA)
-    if ( Mix_OpenAudio( (freq<0)?22050:freq, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, DEFAULT_AUDIOBUF ) < 0 ){
-#else        
     if ( Mix_OpenAudio( (freq<0)?44100:freq, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, DEFAULT_AUDIOBUF ) < 0 ){
-#endif        
         utils::printError("Couldn't open audio device!\n"
             "  reason: [%s].\n", SDL_GetError());
         audio_open_flag = false;
@@ -753,29 +724,17 @@ void ONScripter::mouseOverCheck( int x, int y )
 }
 
 void ONScripter::warpMouse(int x, int y) {
-#if SDL_VERSION_ATLEAST(2,0,0)
-    SDL_WarpMouseInWindow(NULL, x, y);
-#else
     SDL_WarpMouse(x, y);
-#endif
 }
 
 void ONScripter::setFullScreen(bool fullscreen) {
     if (fullscreen != fullscreen_mode) {
-#if SDL_VERSION_ATLEAST(2,0,0)
-        SDL_SetWindowFullscreen(window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
-        SDL_GetWindowSize(window, &device_width, &device_height);
-        calcRenderRect();
-        flushDirect(screen_rect, refreshMode());
-        fullscreen_mode = fullscreen;
-#else
         if (!SDL_WM_ToggleFullScreen(screen_surface)) {
             screen_surface = SDL_SetVideoMode(screen_device_width, screen_device_height, screen_bpp,
                 fullscreen ? DEFAULT_VIDEO_SURFACE_FLAG | SDL_FULLSCREEN
                 : DEFAULT_VIDEO_SURFACE_FLAG);
             flushDirect(screen_rect, refreshMode());
         }
-#endif
     }
 }
 
@@ -927,12 +886,6 @@ void ONScripter::refreshMouseOverButton()
     shift_over_button = -1;
     current_button_link = root_button_link.next;
     SDL_GetMouseState( &mx, &my );
-#if SDL_VERSION_ATLEAST(2,0,0)
-    if (!(SDL_GetWindowFlags(window) & SDL_WINDOW_MOUSE_FOCUS)) {
-        mx = screen_device_width;
-        my = screen_device_height;
-    }
-#endif
     mx = mx * screen_width / screen_device_width;
     my = my * screen_width / screen_device_width;
     mouseOverCheck( mx, my );

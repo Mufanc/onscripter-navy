@@ -345,9 +345,6 @@ int AnimationInfo::doClipping( SDL_Rect *dst, SDL_Rect *clip, SDL_Rect *clipped 
 inline void rainAddBlendPixel32(const Uint32 *src_buffer, Uint32 *__restrict dst_buffer) {
     const Uint8 *src = (const Uint8*)src_buffer;
     Uint8 *dst = (Uint8*)dst_buffer;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    ++dst; ++src;
-#endif
     for (int i = 0; i < 3; ++i, ++src, ++dst) {
         int result = (*dst) + (*src);
         (*dst) = (result < 255) ? result : 255;
@@ -399,11 +396,7 @@ void AnimationInfo::blendOnSurface( SDL_Surface *dst_surface, int dst_x, int dst
         void operator()(const int i) const {
             const ONSBuf *src_buffer = stsrc_buffer + (pitch)* i;
             ONSBuf *dst_buffer = stdst_buffer + (dst_surface_w)* i;
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
     unsigned char *alphap = (unsigned char *)src_buffer + 3;
-#else
-    unsigned char *alphap = (unsigned char *)src_buffer;
-#endif //SDL_BYTEORDER == SDL_LIL_ENDIAN
 #ifdef USE_BUILTIN_LAYER_EFFECTS
             if (blendmode == AnimationInfo::BLEND_ADD) {
                 for (int j = dst_rect_w; j != 0; j--, src_buffer++, dst_buffer++) {
@@ -483,11 +476,7 @@ void AnimationInfo::blendOnSurface2( SDL_Surface *dst_surface, int dst_x, int ds
             ONSBuf* dst_buffer = *dst_buffer_p;
             if (blending_mode == BLEND_NORMAL) {
                 while (size > 0) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
                     unsigned char* alphap = (unsigned char *)line_buffer + 3;
-#else
-                    unsigned char *alphap = (unsigned char *)line_buffer;
-#endif
                     BLEND_PIXEL();
                     ++dst_buffer; ++line_buffer; --size;
                 }
@@ -495,22 +484,14 @@ void AnimationInfo::blendOnSurface2( SDL_Surface *dst_surface, int dst_x, int ds
             else {
                 if (blending_mode == BLEND_ADD) {
                     while (size > 0) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
                         unsigned char* alphap = (unsigned char *)line_buffer + 3;
-#else
-                        unsigned char *alphap = (unsigned char *)line_buffer;
-#endif
                         ADDBLEND_PIXEL();
                         ++dst_buffer; ++line_buffer; --size;
                     }
                 }
                 else {
                     while (size > 0) {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
                         unsigned char* alphap = (unsigned char *)line_buffer + 3;
-#else
-                        unsigned char *alphap = (unsigned char *)line_buffer;
-#endif
                         SUBBLEND_PIXEL();
                         ++dst_buffer; ++line_buffer; --size;
                     }
@@ -747,9 +728,7 @@ SDL_Surface *AnimationInfo::allocSurface( int w, int h, Uint32 texture_format )
     else // texture_format == SDL_PIXELFORMAT_ARGB8888
         surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
 
-#if !SDL_VERSION_ATLEAST(2,0,0)
     SDL_SetAlpha(surface, 0, SDL_ALPHA_OPAQUE);
-#endif
 
     return surface;
 }
@@ -864,11 +843,7 @@ SDL_Surface *AnimationInfo::setupImageAlpha( SDL_Surface *surface, SDL_Surface *
     orig_pos.w = w;
     orig_pos.h = h;
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
     unsigned char *alphap = (unsigned char *)buffer + 3;
-#else
-    unsigned char *alphap = (unsigned char *)buffer;
-#endif
 
     Uint32 ref_color = 0;
     if ( trans_mode == TRANS_TOPLEFT ){
@@ -896,11 +871,7 @@ SDL_Surface *AnimationInfo::setupImageAlpha( SDL_Surface *surface, SDL_Surface *
         SDL_LockSurface( surface2 );
         Uint32 *buffer2 = (Uint32 *)surface2->pixels;
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
         alphap = (unsigned char *)buffer2 + 3;
-#else
-        alphap = (unsigned char *)buffer2;
-#endif
 
         for (i=h ; i!=0 ; i--){
             for (c=num_of_cells ; c!=0 ; c--){
@@ -995,14 +966,9 @@ unsigned char AnimationInfo::getAlpha(int x, int y)
     SDL_LockSurface( image_surface );
     ONSBuf *buf = (ONSBuf *)image_surface->pixels + pitch*y + offset_x + x;
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
     alpha = *((unsigned char *)buf + 3);
-#else
-    alpha = *((unsigned char *)buf);
-#endif
     SDL_UnlockSurface( image_surface );
     SDL_mutexV(mutex);
 
     return alpha;
 }
-

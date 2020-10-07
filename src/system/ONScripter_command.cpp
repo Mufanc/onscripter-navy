@@ -471,11 +471,7 @@ int ONScripter::sp_rgb_gradationCommand()
     // replace pixels of the key-color with the specified color in gradation
     for (i=upper_bound ; i<=lower_bound ; i++){
         ONSBuf *buf = (ONSBuf *)surface->pixels + surface->w * i;
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
         unsigned char *alphap = (unsigned char *)buf + 3;
-#else
-        unsigned char *alphap = (unsigned char *)buf;
-#endif
         Uint32 color = alpha << surface->format->Ashift;
         if (upper_bound != lower_bound){
             color |= (((lower_r - upper_r) * (i-upper_bound) / (lower_bound - upper_bound) + upper_r) >> fmt->Rloss) << fmt->Rshift;
@@ -3225,16 +3221,8 @@ int ONScripter::captionCommand()
     size_t len = strlen(buf);
 
     char *buf2 = new char[len*3+1];
-#if defined(MACOSX) && (SDL_COMPILEDVERSION >= 1208) || SDL_VERSION_ATLEAST(2,0,0)
-    DirectReader::convertCodingToUTF8(buf2, buf);
-#else
-#if defined(UTF8_CAPTION)
-    DirectReader::convertCodingToUTF8(buf2, buf);
-#else
     strcpy(buf2, buf);
     DirectReader::convertCodingToEUC(buf2);
-#endif
-#endif
     
     setStr( &wm_title_string, buf2 );
     setStr( &wm_icon_string,  buf2 );
@@ -3446,11 +3434,7 @@ int ONScripter::btndefCommand()
             parseTaggedString( &btndef_info );
             btndef_info.trans_mode = AnimationInfo::TRANS_COPY;
             setupAnimationInfo( &btndef_info );
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-            SDL_SetSurfaceBlendMode(btndef_info.image_surface, SDL_BLENDMODE_NONE);
-#else
             SDL_SetAlpha( btndef_info.image_surface, DEFAULT_BLIT_FLAG, SDL_ALPHA_OPAQUE );
-#endif
         }
     }
     

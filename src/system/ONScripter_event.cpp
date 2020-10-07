@@ -46,11 +46,7 @@ static SDL_TimerID timer_id = NULL;
 SDL_TimerID timer_cdaudio_id = NULL;
 SDL_TimerID timer_bgmfade_id = NULL;
 
-#if SDL_VERSION_ATLEAST(2,0,0)
-typedef SDL_Keycode ONS_Key;
-#else
 typedef SDLKey ONS_Key;
-#endif
 
 bool ext_music_play_once_flag = false;
 
@@ -414,7 +410,7 @@ bool ONScripter::mousePressEvent( SDL_MouseButtonEvent *event )
         if ( event->type == SDL_MOUSEBUTTONDOWN )
             current_button_state.down_flag = true;
     }
-#if SDL_VERSION_ATLEAST(1, 2, 5) && !SDL_VERSION_ATLEAST(2, 0, 0)
+#if SDL_VERSION_ATLEAST(1, 2, 5)
     else if (event->button == SDL_BUTTON_WHEELUP &&
              (bexec_flag ||
               (event_mode & WAIT_TEXT_MODE) ||
@@ -454,54 +450,6 @@ bool ONScripter::mousePressEvent( SDL_MouseButtonEvent *event )
     return false;
 }
 
-#if SDL_VERSION_ATLEAST(2,0,0)
-bool ONScripter::mouseWheelEvent(SDL_MouseWheelEvent *event)
-{
-    if (variable_edit_mode) return false;
-
-    if (automode_flag) {
-        automode_flag = false;
-        return false;
-    }
-
-    current_button_state.x = event->x * screen_scale_ratio1;
-    current_button_state.y = event->y * screen_scale_ratio2;
-    current_button_state.down_flag = false;
-    skip_mode &= ~SKIP_NORMAL;
-
-    if (event->y > 0 &&
-        (bexec_flag ||
-        (event_mode & WAIT_TEXT_MODE) ||
-        (usewheel_flag && event_mode & WAIT_BUTTON_MODE) ||
-        system_menu_mode == SYSTEM_LOOKBACK)) {
-        current_button_state.button = -2;
-        sprintf(current_button_state.str, "WHEELUP");
-        if (event_mode & WAIT_TEXT_MODE) system_menu_mode = SYSTEM_LOOKBACK;
-    } else if (event->y < 0 &&
-        (bexec_flag ||
-        (enable_wheeldown_advance_flag && event_mode & WAIT_TEXT_MODE) ||
-        (usewheel_flag && event_mode & WAIT_BUTTON_MODE) ||
-        system_menu_mode == SYSTEM_LOOKBACK)) {
-        if (event_mode & WAIT_TEXT_MODE)
-            current_button_state.button = 0;
-        else
-            current_button_state.button = -3;
-        sprintf(current_button_state.str, "WHEELDOWN");
-    }
-    else return false;
-
-    if (event_mode & (WAIT_INPUT_MODE | WAIT_BUTTON_MODE)) {
-        if (!(event_mode & (WAIT_TEXT_MODE)))
-            skip_mode |= SKIP_TO_EOL;
-        playClickVoice();
-        stopAnimation(clickstr_state);
-
-        return true;
-    }
-
-    return false;
-}
-#endif
 
 void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
 {
@@ -533,7 +481,6 @@ void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
         variable_edit_mode = EDIT_VARIABLE_INDEX_MODE;
         variable_edit_num = 0;
         break;
-#if !SDL_VERSION_ATLEAST(2,0,0)
         enum {
             ONS_KP_0 = SDLK_KP0,
             ONS_KP_1 = SDLK_KP1,
@@ -546,20 +493,6 @@ void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
             ONS_KP_8 = SDLK_KP8,
             ONS_KP_9 = SDLK_KP9
         };
-#else
-        enum {
-            ONS_KP_0 = SDLK_KP_0,
-            ONS_KP_1 = SDLK_KP_1,
-            ONS_KP_2 = SDLK_KP_2,
-            ONS_KP_3 = SDLK_KP_3,
-            ONS_KP_4 = SDLK_KP_4,
-            ONS_KP_5 = SDLK_KP_5,
-            ONS_KP_6 = SDLK_KP_6,
-            ONS_KP_7 = SDLK_KP_7,
-            ONS_KP_8 = SDLK_KP_8,
-            ONS_KP_9 = SDLK_KP_9
-        };
-#endif
       case SDLK_9: case ONS_KP_9: variable_edit_num = variable_edit_num * 10 + 9; break;
       case SDLK_8: case ONS_KP_8: variable_edit_num = variable_edit_num * 10 + 8; break;
       case SDLK_7: case ONS_KP_7: variable_edit_num = variable_edit_num * 10 + 7; break;
@@ -1170,12 +1103,6 @@ void ONScripter::runEventLoop()
             ret = mousePressEvent( &event.button );
             if (ret) return;
             break;
-#if SDL_VERSION_ATLEAST(2,0,0)
-          case SDL_MOUSEWHEEL:
-            ret = mouseWheelEvent(&event.wheel);
-            if (ret) return;
-            break;
-#endif
           case SDL_JOYBUTTONDOWN:
             event.key.type = SDL_KEYDOWN;
             event.key.keysym.sym = transJoystickButton(event.jbutton.button);
@@ -1265,27 +1192,6 @@ void ONScripter::runEventLoop()
             }
 
             return;
-#if SDL_VERSION_ATLEAST(2,0,0)
-          case SDL_WINDOWEVENT:  
-              switch (event.window.event) {
-              case SDL_WINDOWEVENT_EXPOSED: SDL_RenderPresent(renderer); break;
-              case SDL_WINDOWEVENT_FOCUS_LOST:
-                  Mix_Pause(-1);
-                  Mix_PauseMusic();
-                  // the mouse cursor leaves the window
-                  SDL_MouseMotionEvent mevent;
-                  mevent.x = screen_device_width;
-                  mevent.y = screen_device_height;
-                  mouseMoveEvent(&mevent);
-                  break;
-              case SDL_WINDOWEVENT_FOCUS_GAINED:
-                  Mix_ResumeMusic();
-                  Mix_Resume(-1);
-                  break;
-              }
-              //SDL_RenderPresent(renderer);
-              break;
-#else
           case SDL_ACTIVEEVENT:
             if ( !event.active.gain ){
                 // the mouse cursor leaves the window
@@ -1298,7 +1204,6 @@ void ONScripter::runEventLoop()
           case SDL_VIDEOEXPOSE:
             SDL_UpdateRect( screen_surface, 0, 0, screen_width, screen_height );
             break;
-#endif
           case SDL_QUIT:
             endCommand();
             break;
