@@ -80,7 +80,6 @@ void ONScripter::initSDL()
     screen_scale_ratio2 = (float)screen_height / screen_device_height;
 
     screen_surface = SDL_SetVideoMode( screen_width, screen_height, screen_bpp, DEFAULT_VIDEO_SURFACE_FLAG|(fullscreen_mode?SDL_FULLSCREEN:0) );
-    texture_format = SDL_PIXELFORMAT_ARGB8888;
 
     /* ---------------------------------------- */
     /* Check if VGA screen is available. */
@@ -161,6 +160,7 @@ ONScripter::ONScripter()
     smpeg_info = NULL;
     current_button_state.down_flag = false;
     vsync = true;
+    texture_format = SDL_PIXELFORMAT_ARGB8888;
 
     int i;
     for (i=0 ; i<MAX_SPRITE2_NUM ; i++)
