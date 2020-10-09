@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 
 #ifdef __NAVY__
 #include <stdio.h>
@@ -32,17 +33,10 @@ typedef uint32_t SDLKey;
 SDL_RWops *SDL_RWFromConstMem(void *buf, int len);
 
 
-int TTF_Init();
-
 typedef int Mix_Music;
 typedef int Mix_Chunk;
 
-struct TTF_Font {};
-TTF_Font* TTF_OpenFont(const char *file, int size);
-TTF_Font *TTF_OpenFontRW(SDL_RWops *src, int freesrc, int ptsize);
-
 #else
-#include <SDL_ttf.h>
 #include <SDL_mixer.h>
 
 #define SDL_INITFLAGS (SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO)

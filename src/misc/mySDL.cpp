@@ -11,17 +11,4 @@ SDL_RWops *SDL_RWFromConstMem(void *buf, int len) {
   return NULL;
 }
 
-int TTF_Init() {
-  return 0;
-}
-
-TTF_Font* TTF_OpenFont(const char *file, int size) {
-  return NULL;
-}
-
-TTF_Font *TTF_OpenFontRW(SDL_RWops *src, int freesrc, int ptsize) {
-  assert(0);
-  return NULL;
-}
-
 #endif
