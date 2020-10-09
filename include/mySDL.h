@@ -26,16 +26,6 @@ typedef uint32_t SDLKey;
 
 #define SDL_ALPHA_OPAQUE 0
 
-typedef struct SDL_RWops{
-  int (*seek)(struct SDL_RWops *, int, int);
-  int (*read)(struct SDL_RWops *, void *, int, int);
-  int (*close)(struct SDL_RWops *);
-} SDL_RWops;
-
-#define RW_SEEK_SET SEEK_SET
-#define RW_SEEK_END SEEK_END
-
-SDL_RWops *SDL_RWFromFile(const char *file, const char *mode);
 SDL_RWops *SDL_RWFromConstMem(void *buf, int len);
 
 
