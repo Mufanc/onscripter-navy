@@ -44,7 +44,7 @@ void ONScripter::searchSaveFile( SaveFileInfo &save_file_info, int no )
     sprintf( file_name, "%ssave%d.dat", save_dir?save_dir:archive_path, no );
     time_t mtime = 0;
 #ifdef __NAVY__
-    FILE *fp = fopen(file_name, "r");
+    FILE *fp = ::fopen(file_name, "r");
     if (fp == NULL) {
       save_file_info.valid = false;
       return;
