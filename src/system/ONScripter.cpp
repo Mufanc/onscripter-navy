@@ -76,8 +76,6 @@ void ONScripter::initSDL()
     screen_ratio2 = 1;
     screen_width  = script_h.screen_width;
     screen_height = script_h.screen_height;
-    screen_scale_ratio1 = (float)screen_width / screen_device_width;
-    screen_scale_ratio2 = (float)screen_height / screen_device_height;
 
     screen_surface = SDL_SetVideoMode( screen_width, screen_height, screen_bpp, DEFAULT_VIDEO_SURFACE_FLAG|(fullscreen_mode?SDL_FULLSCREEN:0) );
 

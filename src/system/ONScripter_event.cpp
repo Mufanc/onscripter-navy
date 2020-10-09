@@ -281,8 +281,8 @@ bool ONScripter::trapHandler()
  * **************************************** */
 bool ONScripter::mouseMoveEvent(uint16_t x, uint16_t y)
 {
-    current_button_state.x = x * screen_scale_ratio1;
-    current_button_state.y = y * screen_scale_ratio2;
+    current_button_state.x = x * screen_width / screen_device_width;
+    current_button_state.y = y * screen_height / screen_device_height;
 
     if ( event_mode & WAIT_BUTTON_MODE ){
         mouseOverCheck( current_button_state.x, current_button_state.y );
@@ -312,8 +312,8 @@ bool ONScripter::mousePressEvent( SDL_MouseButtonEvent *event )
         if (trapHandler()) return true;
     }
 
-    current_button_state.x = event->x * screen_scale_ratio1;
-    current_button_state.y = event->y * screen_scale_ratio2;
+    current_button_state.x = event->x * screen_width / screen_device_width;
+    current_button_state.y = event->y * screen_height / screen_device_height;
     current_button_state.down_flag = false;
     skip_mode &= ~SKIP_NORMAL;
 
