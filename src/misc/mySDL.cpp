@@ -16,7 +16,6 @@ int TTF_Init() {
 }
 
 TTF_Font* TTF_OpenFont(const char *file, int size) {
-  assert(0);
   return NULL;
 }
 
