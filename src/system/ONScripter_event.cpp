@@ -279,11 +279,10 @@ bool ONScripter::trapHandler()
 /* **************************************** *
  * Event handlers
  * **************************************** */
-#ifndef __NAVY__
-bool ONScripter::mouseMoveEvent( SDL_MouseMotionEvent *event )
+bool ONScripter::mouseMoveEvent(uint16_t x, uint16_t y)
 {
-    current_button_state.x = event->x * screen_scale_ratio1;
-    current_button_state.y = event->y * screen_scale_ratio2;
+    current_button_state.x = x * screen_scale_ratio1;
+    current_button_state.y = y * screen_scale_ratio2;
 
     if ( event_mode & WAIT_BUTTON_MODE ){
         mouseOverCheck( current_button_state.x, current_button_state.y );
@@ -298,6 +297,7 @@ bool ONScripter::mouseMoveEvent( SDL_MouseMotionEvent *event )
     return false;
 }
 
+#ifndef __NAVY__
 bool ONScripter::mousePressEvent( SDL_MouseButtonEvent *event )
 {
     if ( variable_edit_mode ) return false;
@@ -1011,7 +1011,7 @@ void ONScripter::runEventLoop()
         switch (event.type) {
 #ifndef __NAVY__
           case SDL_MOUSEMOTION:
-            if (mouseMoveEvent( &event.motion )) return;
+            if (mouseMoveEvent(event.motion.x, event.motion.y )) return;
             if (btndown_flag){
                 if (event.motion.state & SDL_BUTTON(SDL_BUTTON_LEFT))
                     tmp_event.button.button = SDL_BUTTON_LEFT;
@@ -1043,7 +1043,7 @@ void ONScripter::runEventLoop()
                 SDL_MouseMotionEvent mevent;
                 mevent.x = screen_device_width;
                 mevent.y = screen_device_height;
-                mouseMoveEvent( &mevent );
+                mouseMoveEvent(mevent.x, mevent.y );
                 break;
             }
           case SDL_VIDEOEXPOSE:

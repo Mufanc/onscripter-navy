@@ -332,6 +332,9 @@ private:
 
     // variables relevant to button
     ButtonState current_button_state, last_mouse_state;
+#ifdef __NAVY__
+    SDL_Surface *mouse_surface, *mouse_save_surface;
+#endif
 
     ButtonLink root_button_link, *current_button_link, exbtn_d_button_link;
     bool is_exbtn_enabled;
@@ -520,8 +523,8 @@ public:
 private:
     bool waitEvent(int count);
     bool trapHandler();
+    bool mouseMoveEvent(uint16_t x, uint16_t y);
 #ifndef __NAVY__
-    bool mouseMoveEvent( SDL_MouseMotionEvent *event );
     bool mousePressEvent( SDL_MouseButtonEvent *event );
 #endif
     void variableEditMode( SDL_KeyboardEvent *event );

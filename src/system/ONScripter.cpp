@@ -296,6 +296,22 @@ int ONScripter::init()
     effect_dst_surface   = AnimationInfo::allocSurface( screen_width, screen_height, texture_format );
     effect_tmp_surface = AnimationInfo::allocSurface(screen_width, screen_height, texture_format);
 
+#ifdef __NAVY__
+    // fake mouse
+    SDL_Rect rect = { .x = 0, .y = 0, .w = 8, .h = 8 };
+    mouse_surface = AnimationInfo::allocSurface(rect.w, rect.h, texture_format);
+    SDL_FillRect(mouse_surface, &rect, 0x00000000);
+    rect = (SDL_Rect) { .x = 0, .y = 0, .w = 8, .h = 2 };
+    SDL_FillRect(mouse_surface, &rect, 0x00ffffff);
+    rect = (SDL_Rect) { .x = 0, .y = 6, .w = 8, .h = 2 };
+    SDL_FillRect(mouse_surface, &rect, 0x00ffffff);
+    rect = (SDL_Rect) { .x = 0, .y = 0, .w = 2, .h = 8 };
+    SDL_FillRect(mouse_surface, &rect, 0x00ffffff);
+    rect = (SDL_Rect) { .x = 6, .y = 0, .w = 2, .h = 8 };
+    SDL_FillRect(mouse_surface, &rect, 0x00ffffff);
+    mouse_save_surface = AnimationInfo::allocSurface(rect.w, rect.h, texture_format);
+#endif
+
     screenshot_surface = NULL;
     screenshot_w = screen_width;
     screenshot_h = screen_height;
@@ -559,6 +575,17 @@ void ONScripter::flushDirect( SDL_Rect &rect, int refresh_mode )
     if (AnimationInfo::doClipping(&dst_rect, &screen_rect) || (dst_rect.w==0 && dst_rect.h==0)) return;
     SDL_BlitSurface( accumulation_surface, &dst_rect, screen_surface, &dst_rect );
     SDL_UpdateRect( screen_surface, dst_rect.x, dst_rect.y, dst_rect.w, dst_rect.h );
+
+#ifdef __NAVY__
+    SDL_Rect mouse_rect = { .x = 0, .y = 0, .w = 8, .h = 8 };
+    mouse_rect.x = current_button_state.x;
+    mouse_rect.y = current_button_state.y;
+
+    SDL_BlitSurface(screen_surface, &mouse_rect, mouse_save_surface, NULL);
+    SDL_BlitSurface(mouse_surface, NULL, screen_surface, &mouse_rect);
+    SDL_UpdateRect(screen_surface, mouse_rect.x, mouse_rect.y, mouse_rect.w, mouse_rect.h);
+    SDL_BlitSurface(mouse_save_surface, NULL, screen_surface, &mouse_rect);
+#endif
 }
 
 
@@ -682,6 +709,8 @@ void ONScripter::mouseOverCheck( int x, int y )
 void ONScripter::warpMouse(int x, int y) {
 #ifndef __NAVY__
     SDL_WarpMouse(x, y);
+#else
+    mouseMoveEvent(x, y);
 #endif
 }
 
