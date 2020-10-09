@@ -42,14 +42,23 @@ void ONScripter::searchSaveFile( SaveFileInfo &save_file_info, int no )
 
     script_h.getStringFromInteger( save_file_info.sjis_no, no, (num_save_file >= 10)?2:1 );
     sprintf( file_name, "%ssave%d.dat", save_dir?save_dir:archive_path, no );
+    time_t mtime = 0;
+#ifdef __NAVY__
+    FILE *fp = fopen(file_name, "r");
+    if (fp == NULL) {
+      save_file_info.valid = false;
+      return;
+    }
+    fclose(fp);
+#else
     struct stat buf;
-    struct tm *tm;
     if ( stat( file_name, &buf ) != 0 ){
         save_file_info.valid = false;
         return;
     }
-    time_t mtime = buf.st_mtime;
-    tm = localtime( &mtime );
+    mtime = buf.st_mtime;
+#endif
+    struct tm *tm = localtime( &mtime );
         
     save_file_info.month  = tm->tm_mon + 1;
     save_file_info.day    = tm->tm_mday;
