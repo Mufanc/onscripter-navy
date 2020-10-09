@@ -160,14 +160,10 @@ SDL_Surface *ONScripter::createSurfaceFromFile(char *filename, bool *has_alpha, 
     script_h.cBR->getFile(filename, buffer, location);
     char *ext = strrchr(filename, '.');
 
-    SDL_Surface *tmp = NULL;
-#ifdef __NAVY__
-    assert(0);
-#else
     SDL_RWops *src = SDL_RWFromMem(buffer, length);
     int is_png = IMG_isPNG(src);
 
-    tmp = IMG_Load_RW(src, 0);
+    SDL_Surface *tmp = IMG_Load_RW(src, 0);
     if (!tmp && ext && (!strcmp(ext+1, "JPG") || !strcmp(ext+1, "jpg"))){
         utils::printError(" *** force-loading a JPG image [%s]\n", filename);
         tmp = IMG_LoadJPG_RW(src);
@@ -186,7 +182,6 @@ SDL_Surface *ONScripter::createSurfaceFromFile(char *filename, bool *has_alpha, 
 
     if (!tmp)
         utils::printError(" *** can't load file [%s] %s ***\n", filename, IMG_GetError());
-#endif
 
     return tmp;
 }

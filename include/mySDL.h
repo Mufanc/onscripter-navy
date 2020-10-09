@@ -2,6 +2,7 @@
 #define _MYSDL_H
 
 #include <SDL.h>
+#include <SDL_image.h>
 
 #ifdef __NAVY__
 #include <stdio.h>
@@ -39,7 +40,6 @@ TTF_Font* TTF_OpenFont(const char *file, int size);
 TTF_Font *TTF_OpenFontRW(SDL_RWops *src, int freesrc, int ptsize);
 
 #else
-#include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 
