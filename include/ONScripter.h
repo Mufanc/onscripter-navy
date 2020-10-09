@@ -30,8 +30,6 @@
 #include "ButtonLink.h"
 #include "mySDL.h"
 
-#define DEFAULT_VIDEO_SURFACE_FLAG (SDL_SWSURFACE)
-
 #define DEFAULT_BLIT_FLAG (0)
 //#define DEFAULT_BLIT_FLAG (SDL_RLEACCEL)
 

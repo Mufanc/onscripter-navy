@@ -9,6 +9,8 @@
 #include <assert.h>
 
 #define SDL_INITFLAGS (0)
+#define DEFAULT_VIDEO_SURFACE_FLAG (SDL_HWSURFACE)
+
 #define SDL_FULLSCREEN 0
 #define SDL_VERSION_ATLEAST(a, b, c) (0)
 
@@ -44,6 +46,7 @@ TTF_Font *TTF_OpenFontRW(SDL_RWops *src, int freesrc, int ptsize);
 #include <SDL_mixer.h>
 
 #define SDL_INITFLAGS (SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO)
+#define DEFAULT_VIDEO_SURFACE_FLAG (SDL_SWSURFACE)
 
 #endif
 
