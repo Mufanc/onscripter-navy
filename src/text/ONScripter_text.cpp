@@ -85,7 +85,7 @@ void ONScripter::drawGlyph( SDL_Surface *dst_surface, FontInfo *info, SDL_Color 
         else unicode = text[0];
     }
 #ifdef __NAVY__
-    assert(0);
+    return;
 #else
 
     int minx, maxx, miny, maxy, advanced;
