@@ -449,7 +449,6 @@ void ONScripter::reset()
     wave_play_loop_flag = false;
     midi_play_loop_flag = false;
     music_play_loop_flag = false;
-    music_loopback_offset = 0.0;
     cd_play_loop_flag = false;
     mp3save_flag = false;
     mp3fade_start = 0;

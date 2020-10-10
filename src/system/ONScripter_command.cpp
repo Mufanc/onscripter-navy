@@ -1422,7 +1422,6 @@ int ONScripter::mp3Command()
     stopBGM( false );
 
     music_play_loop_flag = loop_flag;
-    music_loopback_offset = 0.0;
 
     const char *buf = script_h.readStr();
     if (buf[0] != '\0'){
@@ -1430,6 +1429,7 @@ int ONScripter::mp3Command()
             buf++;
             bool integer_flag = true;
             double decimal = 0.1;
+            music_loopback_offset = 0.0;
             while (*buf != ')' && *buf != '\0'){
                 if (*buf >= '0' && *buf <= '9'){
                     if (integer_flag)
