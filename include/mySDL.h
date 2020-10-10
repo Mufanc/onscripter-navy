@@ -12,12 +12,8 @@
 #define SDL_INITFLAGS (0)
 #define DEFAULT_VIDEO_SURFACE_FLAG (SDL_HWSURFACE)
 
-#define SDL_FULLSCREEN 0
 #define SDL_VERSION_ATLEAST(a, b, c) (0)
 
-static inline void SDL_WM_SetCaption(const char *title, const char *icon) {}
-//uint8_t SDL_GetMouseState(int *x, int *y);
-//void SDL_WarpMouse(uint16_t x, uint16_t y);
 int SDL_SetAlpha(SDL_Surface *surface, uint32_t flag, uint8_t alpha);
 
 struct SDL_mutex {};
