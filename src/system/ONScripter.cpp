@@ -107,7 +107,6 @@ void ONScripter::initSDL()
 void ONScripter::openAudio(int freq)
 {
   audio_open_flag = false;
-#ifndef __NAVY__
     Mix_CloseAudio();
     if ( Mix_OpenAudio( (freq<0)?44100:freq, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, DEFAULT_AUDIOBUF ) < 0 ){
         utils::printError("Couldn't open audio device!\n"
@@ -131,7 +130,6 @@ void ONScripter::openAudio(int freq)
         Mix_AllocateChannels( ONS_MIX_CHANNELS+ONS_MIX_EXTRA_CHANNELS );
         Mix_ChannelFinished( waveCallback );
     }
-#endif
 }
 
 ONScripter::ONScripter()
@@ -1163,7 +1161,6 @@ void ONScripter::quit()
 {
     saveAll();
 
-#ifndef __NAVY__
     if ( midi_info ){
         Mix_HaltMusic();
         Mix_FreeMusic( midi_info );
@@ -1174,7 +1171,6 @@ void ONScripter::quit()
         Mix_FreeMusic( music_info );
         music_info = NULL;
     }
-#endif
 }
 
 void ONScripter::disableGetButtonFlag()

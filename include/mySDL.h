@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 
 #ifdef __NAVY__
 #include <stdio.h>
@@ -28,12 +29,7 @@ typedef uint32_t SDLKey;
 
 SDL_RWops *SDL_RWFromConstMem(void *buf, int len);
 
-
-typedef int Mix_Music;
-typedef int Mix_Chunk;
-
 #else
-#include <SDL_mixer.h>
 
 #define SDL_INITFLAGS (SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO)
 #define DEFAULT_VIDEO_SURFACE_FLAG (SDL_SWSURFACE)

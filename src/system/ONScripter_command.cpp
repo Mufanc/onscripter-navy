@@ -82,10 +82,8 @@ int ONScripter::yesnoboxCommand()
 int ONScripter::wavestopCommand()
 {
     if ( wave_sample[MIX_WAVE_CHANNEL] ){
-#ifndef __NAVY__
         Mix_Pause( MIX_WAVE_CHANNEL );
         Mix_FreeChunk( wave_sample[MIX_WAVE_CHANNEL] );
-#endif
         wave_sample[MIX_WAVE_CHANNEL] = NULL;
     }
     setStr( &wave_file_name, NULL );
@@ -152,9 +150,7 @@ int ONScripter::vspCommand()
 int ONScripter::voicevolCommand()
 {
     voice_volume = script_h.readInt();
-#ifndef __NAVY__
     if ( wave_sample[0] ) Mix_Volume( 0, voice_volume * MIX_MAX_VOLUME / 100 );
-#endif
     
     return RET_CONTINUE;
 }
@@ -626,13 +622,11 @@ int ONScripter::sevolCommand()
 {
     se_volume = script_h.readInt();
 
-#ifndef __NAVY__
     for ( int i=1 ; i<ONS_MIX_CHANNELS ; i++ )
         if ( wave_sample[i] ) Mix_Volume( i, se_volume * MIX_MAX_VOLUME / 100 );
 
     if ( wave_sample[MIX_LOOPBGM_CHANNEL0] ) Mix_Volume( MIX_LOOPBGM_CHANNEL0, se_volume * MIX_MAX_VOLUME / 100 );
     if ( wave_sample[MIX_LOOPBGM_CHANNEL1] ) Mix_Volume( MIX_LOOPBGM_CHANNEL1, se_volume * MIX_MAX_VOLUME / 100 );
-#endif
     
     return RET_CONTINUE;
 }
@@ -1342,16 +1336,13 @@ int ONScripter::mpegplayCommand()
 int ONScripter::mp3volCommand()
 {
     music_volume = script_h.readInt();
-#ifndef __NAVY__
     Mix_VolumeMusic( music_volume * MIX_MAX_VOLUME / 100 );
-#endif
 
     return RET_CONTINUE;
 }
 
 int ONScripter::mp3stopCommand()
 {
-#ifndef __NAVY__
     if (Mix_PlayingMusic() == 1 && timer_bgmfade_id && mp3fadeout_duration_internal > 0) // already in fadeout
         return RET_CONTINUE;
     
@@ -1379,7 +1370,6 @@ int ONScripter::mp3stopCommand()
             waitEvent(-1);
         }
     }
-#endif
 
     stopBGM( false );
 
@@ -1682,17 +1672,13 @@ int ONScripter::lspCommand()
 int ONScripter::loopbgmstopCommand()
 {
     if ( wave_sample[MIX_LOOPBGM_CHANNEL0] ){
-#ifndef __NAVY__
         Mix_Pause(MIX_LOOPBGM_CHANNEL0);
         Mix_FreeChunk( wave_sample[MIX_LOOPBGM_CHANNEL0] );
-#endif
         wave_sample[MIX_LOOPBGM_CHANNEL0] = NULL;
     }
     if ( wave_sample[MIX_LOOPBGM_CHANNEL1] ){
-#ifndef __NAVY__
         Mix_Pause(MIX_LOOPBGM_CHANNEL1);
         Mix_FreeChunk( wave_sample[MIX_LOOPBGM_CHANNEL1] );
-#endif
         wave_sample[MIX_LOOPBGM_CHANNEL1] = NULL;
     }
     setStr(&loop_bgm_name[0], NULL);
@@ -2789,10 +2775,8 @@ int ONScripter::dwavestopCommand()
     else if (ch >= ONS_MIX_CHANNELS) ch = ONS_MIX_CHANNELS-1;
 
     if ( wave_sample[ch] ){
-#ifndef __NAVY__
         Mix_Pause( ch );
         Mix_FreeChunk( wave_sample[ch] );
-#endif
         wave_sample[ch] = NULL;
     }
 
@@ -2824,9 +2808,7 @@ int ONScripter::dwaveCommand()
     else if (ch >= ONS_MIX_CHANNELS) ch = ONS_MIX_CHANNELS-1;
 
     if (play_mode == WAVE_PLAY_LOADED){
-#ifndef __NAVY__
         Mix_PlayChannel(ch, wave_sample[ch], loop_flag?-1:0);
-#endif
     }
     else{
         const char *buf = script_h.readStr();
@@ -3177,9 +3159,7 @@ int ONScripter::chvolCommand()
     else if (ch >= ONS_MIX_CHANNELS) ch = ONS_MIX_CHANNELS-1;
 
     int vol = script_h.readInt();
-#ifndef __NAVY__
     if ( wave_sample[ch] ) Mix_Volume( ch, vol * MIX_MAX_VOLUME / 100 );
-#endif
     
     return RET_CONTINUE;
 }

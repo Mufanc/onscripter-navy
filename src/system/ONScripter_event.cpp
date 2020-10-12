@@ -92,7 +92,6 @@ ONS_Key transKey(ONS_Key key)
 
 void ONScripter::flushEventSub( SDL_Event &event )
 {
-#ifndef __NAVY__
     if ( event.type == ONS_MUSIC_EVENT ){
         if ( music_play_loop_flag ||
              (cd_play_loop_flag && !cdaudio_flag ) ){
@@ -190,7 +189,6 @@ void ONScripter::flushEventSub( SDL_Event &event )
                                 wave_sample[MIX_LOOPBGM_CHANNEL1], -1);
         }
     }
-#endif
 }
 
 void ONScripter::flushEvent()
@@ -469,7 +467,6 @@ void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
             script_h.setNumVariable( variable_edit_index, variable_edit_sign * variable_edit_num );
             break;
 
-#ifndef __NAVY__
           case EDIT_MP3_VOLUME_MODE:
             music_volume = variable_edit_num;
             Mix_VolumeMusic( music_volume * MIX_MAX_VOLUME / 100 );
@@ -486,7 +483,6 @@ void ONScripter::variableEditMode( SDL_KeyboardEvent *event )
           case EDIT_VOICE_VOLUME_MODE:
             voice_volume = variable_edit_num;
             if ( wave_sample[0] ) Mix_Volume( 0, se_volume * MIX_MAX_VOLUME / 100 );
-#endif
 
           default:
             break;
