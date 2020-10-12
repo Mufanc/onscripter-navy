@@ -136,6 +136,7 @@ SDL_Surface *ONScripter::createSurfaceFromFile(char *filename, bool *has_alpha, 
         script_h.findAndAddLog(script_h.log_info[ScriptHandler::FILE_LOG], filename, true);
     //utils::printInfo(" ... loading %s length %ld\n", filename, length );
 
+    Log("loading %s length %ld", filename, length);
     mean_size_of_loaded_images += length*6/5; // reserve 20% larger size
     num_loaded_images++;
     if (tmp_image_buf_length < mean_size_of_loaded_images/num_loaded_images){

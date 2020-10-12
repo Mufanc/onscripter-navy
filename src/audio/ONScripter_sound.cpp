@@ -50,6 +50,7 @@ int ONScripter::playSound(const char *filename, int format, bool loop_flag, int 
            return SOUND_NONE;
     }
 
+    Log("filename = %s", filename);
     unsigned char *buffer;
 
     if (format & SOUND_MUSIC && 
