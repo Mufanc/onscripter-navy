@@ -1035,7 +1035,7 @@ int ONScripter::rndCommand()
         upper = script_h.readInt() - 1;
     }
 
-    script_h.setInt( &script_h.pushed_variable, lower + (int)( (double)(upper-lower+1)*rand()/(RAND_MAX+1.0)) );
+    script_h.setInt( &script_h.pushed_variable, lower +  rand() % (upper-lower+1));
 
     return RET_CONTINUE;
 }

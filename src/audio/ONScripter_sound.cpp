@@ -76,7 +76,7 @@ int ONScripter::playSound(const char *filename, int format, bool loop_flag, int 
             utils::printError("can't load music \"%s\": %s\n", filename, Mix_GetError());
         }
         Mix_VolumeMusic( music_volume );
-        if ( Mix_PlayMusic( music_info, (music_play_loop_flag&&music_loopback_offset==0.0)?-1:0 ) == 0 ){
+        if ( Mix_PlayMusic( music_info, (music_play_loop_flag)?-1:0 ) == 0 ){
             music_buffer = buffer;
             music_buffer_length = length;
             return SOUND_MUSIC;
