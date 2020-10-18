@@ -368,8 +368,8 @@ bool ONScripter::doEffect( EffectLink *effect, bool clear_dirty_region )
         break;
         
       case (MAX_EFFECT_NUM + 2): // quake
-        dst_rect.x = effect->no*((int)(3.0*rand()/(RAND_MAX+1.0)) - 1) * 2;
-        dst_rect.y = effect->no*((int)(3.0*rand()/(RAND_MAX+1.0)) - 1) * 2;
+        dst_rect.x = effect->no*(rand() % 3 - 1) * 2;
+        dst_rect.y = effect->no*(rand() % 3 - 1) * 2;
         SDL_FillRect( accumulation_surface, NULL, SDL_MapRGBA( accumulation_surface->format, 0, 0, 0, 0xff ) );
         drawEffect(&dst_rect, &src_rect, effect_dst_surface);
         break;
