@@ -33,6 +33,7 @@
 #define Log(format, ...) \
   printf("\33[1;34m[%s,%d,%s] " format "\33[0m\n", __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
+#define SDL_INITFLAGS (SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO)
 #define DEFAULT_BLIT_FLAG (0)
 //#define DEFAULT_BLIT_FLAG (SDL_RLEACCEL)
 
