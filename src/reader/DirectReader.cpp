@@ -25,7 +25,9 @@
 #include "DirectReader.h"
 #include "Utils.h"
 #include "coding2utf16.h"
+#ifndef __NAVY__
 #include <bzlib.h>
+#endif
 #include <dirent.h>
 #include <assert.h>
 
