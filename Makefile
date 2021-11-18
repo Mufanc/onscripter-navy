@@ -41,7 +41,7 @@ app: $(BINARY)
 
 $(BINARY): $(OBJS)
 	@echo + LD $@
-	@$(LD) $(LDFLAGS) -o $@ $^
+	@$(LD) -o $@ $^ $(LDFLAGS)
 
 run: app
 	./$(BINARY) -r ../ons-game/clannad
