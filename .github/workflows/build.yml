@@ -30,6 +30,7 @@ jobs:
 
       - name: Build AppImage
         shell: bash
+        id: build_appimage
         run: |
           wget $LINUXDEPLOY -O linuxdeploy.AppImage
           wget $APPIMAGETOOL -O appimagetool.AppImage
@@ -37,3 +38,10 @@ jobs:
           chmod +x ./appimagetool.AppImage
           ./linuxdeploy.AppImage --appimage-extract-and-run --appdir onscripter-navy -e build/onscripter --create-desktop-file --icon-file onscripter.png
           ./appimagetool.AppImage --appimage-extract-and-run onscripter-navy
+          echo "name=$(ls onscripter*AppImage)" >> $GITHUB_OUTPUT
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build_appimage.outputs.name }}
+          path: "onscripter*.AppImage"
