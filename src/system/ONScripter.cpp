@@ -294,7 +294,9 @@ int ONScripter::init()
 
 #ifdef __NAVY__
     // fake mouse
-    SDL_Rect rect = { .x = 0, .y = 0, .w = 8, .h = 8 };
+    const int mouse_w = 8;
+    const int mouse_h = 8;
+    SDL_Rect rect = { .x = 0, .y = 0, .w = mouse_w, .h = mouse_h };
     mouse_surface = AnimationInfo::allocSurface(rect.w, rect.h, texture_format);
     SDL_FillRect(mouse_surface, &rect, 0x00000000);
     rect = (SDL_Rect) { .x = 0, .y = 0, .w = 8, .h = 2 };
@@ -305,7 +307,7 @@ int ONScripter::init()
     SDL_FillRect(mouse_surface, &rect, 0x00ffffff);
     rect = (SDL_Rect) { .x = 6, .y = 0, .w = 2, .h = 8 };
     SDL_FillRect(mouse_surface, &rect, 0x00ffffff);
-    mouse_save_surface = AnimationInfo::allocSurface(rect.w, rect.h, texture_format);
+    mouse_save_surface = AnimationInfo::allocSurface(mouse_w, mouse_h, texture_format);
 #endif
 
     screenshot_surface = NULL;
